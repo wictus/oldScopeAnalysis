@@ -1,0 +1,9 @@
+./main.x -t root -f R9800HV/R9800_VolScan1200.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1250.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1300.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1350.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1400.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1440.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1500.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1550.reco.sig.root -b 1 
+./main.x -t root -f R9800HV/R9800_VolScan1600.reco.sig.root -b 1 
