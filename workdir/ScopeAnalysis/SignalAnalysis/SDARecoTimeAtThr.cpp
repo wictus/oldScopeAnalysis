@@ -6,7 +6,7 @@
 ClassImp(SDARecoTimeAtThr);
 
 SDARecoTimeAtThr::SDARecoTimeAtThr(const char* name, const char* title,
-                           const char* in_file_suffix, const char* out_file_suffix, std::vector<double>& thr) :
+                           const char* in_file_suffix, const char* out_file_suffix, const std::vector<double>& thr) :
   JPetCommonAnalysisModule(name, title, in_file_suffix, out_file_suffix)
 {
   setVersion(MODULE_VERSION);

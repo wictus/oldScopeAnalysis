@@ -23,7 +23,7 @@ class SDARecoTimeAtThr: public JPetCommonAnalysisModule
 
 public:
 
-  SDARecoTimeAtThr(const char* name, const char* title, const char* in_file_suffix, const char* out_file_suffix, std::vector<double>& thr);
+  SDARecoTimeAtThr(const char* name, const char* title, const char* in_file_suffix, const char* out_file_suffix, const std::vector<double>& thr);
   virtual ~SDARecoTimeAtThr();
   virtual void exec();
   virtual void begin();
