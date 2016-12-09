@@ -1,5 +1,5 @@
 /**
- * @file SDALORCcutOnTOT.h
+ * @file SDALORCutOnTOT.h
  * @author Szymon Niedzwiecki, szymon.niedzwiecki@googlemail.com
  * @copyright Copyright (c) 2015, Szymon Niedzwiecki
  * @brief Selector of events for high deposited energy
