@@ -8,7 +8,7 @@ SDALORCutOnTOT::SDALORCutOnTOT(const char* name, const char* title,
   fPMTID(PMTID)
 {
   setVersion(MODULE_VERSION);
-  fThresholdEnergy = thresholdValue; 
+  fTOTThreshold = thresholdValue; 
 }
 
 SDALORCutOnTOT::~SDALORCutOnTOT()

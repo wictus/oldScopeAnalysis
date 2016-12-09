@@ -38,5 +38,6 @@
 #pragma link C++ class SDARecoAmplitudeCalc+;
 #pragma link C++ class SDALORFindAmplitudeConstant+;
 #pragma link C++ class SDALORExctractAmplitudes+;
+#pragma link C++ class SDALORCutOnTOT+;
 
 #endif
