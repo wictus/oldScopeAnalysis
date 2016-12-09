@@ -52,14 +52,14 @@
 	  badSignal->Draw("AP");
 	  double offset = signal.getOffset();
 	  const std::vector< shapePoint > signalPoints = signal.getShape();
-	  int startingIndex = findStartingIndex(signal);
+// 	  int startingIndex = findStartingIndex(signal);
           std::vector<double> amplitudePoints;
                 for(unsigned int i = 0; i < signalPoints.size(); ++i)
                 {
                         amplitudePoints.push_back(signalPoints[i].amplitude - offset);
                 }
 	  
-          double dev = calculateStandardDeviation( amplitudePoints, 20 );
+//           double dev = calculateStandardDeviation( amplitudePoints, 20 );
 //Plotting thresholds in amplitude domain
 /*	  for(unsigned int i = 0; i <5 ; i++)
 	  {
@@ -177,7 +177,7 @@
 	    double thresholdPlusOffset =  threshold + signal.getOffset();
 	    double slope=1;
 	    double intercept=0;
-	    for(int i= findIndexAtValue(min(amplitudePoints),amplitudePoints) ; i < amplitudePoints.size(); i++){
+	    for(unsigned int i= findIndexAtValue(min(amplitudePoints),amplitudePoints) ; i < amplitudePoints.size(); i++){
 
 			if(amplitudePoints[i+1]>thresholdPlusOffset&&amplitudePoints[i]<thresholdPlusOffset){
 				slope= (amplitudePoints[i+1]-amplitudePoints[i])/(timePoints[i+1]-timePoints[i]);
@@ -505,7 +505,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 	double JPetRecoSignalTools::calculateArithmeticMean(const std::vector<double>& vector)
 	{
 		double mean = 0;
-		for( int index = 0; index < vector.size(); ++index)
+		for(unsigned int index = 0; index < vector.size(); ++index)
 		{
 			mean+=vector[index];
 		}

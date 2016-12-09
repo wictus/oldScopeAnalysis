@@ -24,7 +24,6 @@ void SDALORCutOnEnergy::exec()
 
   fReader->getEntry(fEvent);
   const JPetLOR lor = (JPetLOR&) fReader->getData();
-  double upperThreshold = 550;
 
   //if( lor.getFirstHit().getEnergy() > fThresholdEnergy && lor.getSecondHit().getEnergy() > fThresholdEnergy && lor.getFirstHit().getEnergy() < upperThreshold && lor.getSecondHit().getEnergy() < upperThreshold)
   if( lor.getFirstHit().getEnergy() > fThresholdEnergy && lor.getSecondHit().getEnergy() > fThresholdEnergy)

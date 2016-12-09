@@ -122,14 +122,11 @@ void FindConstant::saveErrorsResults( const std::string& name )
 double FindConstant::findHighResolutionError(const double eRes)
 {
   double chi2 = 0;
-  double numberOfBins = 0;
   double resolution = eRes;
   while(true) {
 	fillEXPHisto();
         produceSIMEvents( SIMEvents, resolution );
         fillSIMHisto(bestNorm, bestAlpha);
-
-	numberOfBins= -1.0* (double(SIMHisto->GetXaxis()->FindBin(lowerCut / bestAlpha)) - double(SIMHisto->GetXaxis()->FindBin(upperCut / bestAlpha)) );
 
 	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) /(bestNumberOfBins - 3.0);
 		
@@ -146,15 +143,12 @@ double FindConstant::findHighResolutionError(const double eRes)
 double FindConstant::findLowResolutionError(const double eRes)
 {
   double chi2 = 0;
-  double numberOfBins = 0;
   double resolution = eRes;
   while(true) {
 	fillEXPHisto();
 	
         produceSIMEvents( SIMEvents, resolution );
         fillSIMHisto(bestNorm, bestAlpha);
-
-	numberOfBins= -1.0* (double(SIMHisto->GetXaxis()->FindBin(lowerCut / bestAlpha)) - double(SIMHisto->GetXaxis()->FindBin(upperCut / bestAlpha)) );
 
 	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) / (bestNumberOfBins - 3.0);
 		
@@ -422,7 +416,7 @@ double FindConstant::findBestNorm(const double alpha)
   
   title+=name.str()+".png";
   
-//   c1->SaveAs( (filePath+title) );
+  c1->SaveAs( (filePath+title) );
  
   return norms[ minChi2.first - chi2s.begin() ];
 }
@@ -536,7 +530,7 @@ std::vector< std::pair<double,double> > FindConstant::extractPointValuesAroundMi
   INFO(Form("minimum: %f", foundMinimum));
   
     
-  for(int currentPoint = minimum ; currentPoint < (vec.size()-1) && vec[currentPoint+1].first > vec[currentPoint].first && (50.0+foundMinimum) > vec[currentPoint].first ; currentPoint++)
+  for(unsigned int currentPoint = minimum ; currentPoint < (vec.size()-1) && vec[currentPoint+1].first > vec[currentPoint].first && (50.0+foundMinimum) > vec[currentPoint].first ; currentPoint++)
   {
     exctratedPoints.push_back( vec[currentPoint] );
     if( currentPoint+1 == vec.size()-1 )

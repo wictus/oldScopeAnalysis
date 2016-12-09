@@ -39,7 +39,7 @@ void SDAEstimateTimeCalib::end()
 	TCanvas* c1 = new TCanvas();
 	TH1F* deltaT = new TH1F("timeDifference", "timeDifference", 1000, -5, 5);
 	
-	for( unsigned int i = 0; i < bank.getScintillatorsSize(); i++)
+	for(int i = 0; i < bank.getScintillatorsSize(); i++)
 	{
 	  
 	  for( unsigned int j = 0; j < deltaTPerScint[ bank.getScintillator(i).getID() ].size(); j++ )

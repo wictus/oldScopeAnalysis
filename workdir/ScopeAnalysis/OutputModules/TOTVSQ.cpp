@@ -69,7 +69,7 @@ void TOTVSQ::end()
   std::ofstream file;
   
   
-  for(unsigned int i = 0; i < bank.getPMsSize(); i++ )
+  for(int i = 0; i < bank.getPMsSize(); i++ )
   {
     std::vector<double> TOT, Q;
     std::stringstream buf;
