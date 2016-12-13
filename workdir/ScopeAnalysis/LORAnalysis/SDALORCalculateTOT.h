@@ -1,8 +1,7 @@
-#ifndef _SDALORCALCULATETOT_H_
-#define _SDALORCALCULATETOT_H_
+#ifndef _JPETANALYSISMODULE_SDALORCALCULATETOT_H_
+#define _JPETANALYSISMODULE_SDALORCALCULATETOT_H_
 
 #include "../../../framework/JPetCommonAnalysisModule/JPetCommonAnalysisModule.h"
-#include <boost/concept_check.hpp>
 
 class SDALORCalculateTOT: public JPetCommonAnalysisModule
 {
@@ -12,6 +11,7 @@ public:
   virtual void begin();
   virtual void end();
   virtual void exec();
+  ClassDef(SDALORCalculateTOT, 1 );
   
 private:
   double fThreshold;

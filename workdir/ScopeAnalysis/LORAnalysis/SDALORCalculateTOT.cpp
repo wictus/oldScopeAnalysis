@@ -1,8 +1,12 @@
-#include "SDALORCalculateTOT.h"
+#include "./SDALORCalculateTOT.h"
 #include "../JPetRecoSignalTools/JPetRecoSignalTools.h"
+#include "../../../framework/JPetManager/JPetManager.h"
+
+ClassImp(SDALORCalculateTOT);
 
 SDALORCalculateTOT::SDALORCalculateTOT(const char* name, const char* title, const char* in_file_suffix, const char* out_file_suffix, const double threshold)
-: JPetCommonAnalysisModule(name, title, in_file_suffix, out_file_suffix), fThreshold( threshold )
+: JPetCommonAnalysisModule(name, title, in_file_suffix, out_file_suffix),
+  fThreshold( threshold )
 {
 
 }
