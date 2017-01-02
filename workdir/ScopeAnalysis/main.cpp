@@ -37,6 +37,7 @@
 #include "SignalAnalysis/SDARecoAmplitudeCalc.h"
 #include "LORAnalysis/SDALORFindAmplitudeConstant.h"
 #include "OutputModules/SDALORExctractAmplitudes.h"
+#include "LORAnalysis/SDALORCutOnTOT.h"
 
 
 using namespace std;
@@ -221,6 +222,16 @@ void outputForReco(JPetManager& manager)
 
 }
 
+void testHowTOTCutInfluencesEDep(JPetManager& manager, const double TOTthreshold, const double TOTCut)
+{
+  SDAMatchLORs* matchLORs = new SDAMatchLORs("Module SDAMatchLOR: save as LOR those hits which are in same TSlot and come from different scintillators", "Produces root file with JPetLORs from root file with JPetHits, JPetLORs are empty ", "calculatedEnergy.hits.root", "matchedLORs.lors.root");
+  manager.AddTask(matchLORs);
+
+  SDALORCalculateTOT* changeChargeToTOTInPhysSignals = new SDALORCalculateTOT( "swappingChargeToTOT","swappingChargeToTOT", "matchedLORs.lors.root", "TOTswapped.lors.root", TOTthreshold);
+  //SDALORCutOnTOT* cutOnTOT = new SDALORCutOnTOT("cutting on TOT","cutting on TOT", "TOTswapped.lors.root", "TOTcut.lors.root", TOTCut, 0);
+  manager.AddTask(changeChargeToTOTInPhysSignals);
+}
+
 int main(int argc, char* argv[])
 {
   JPetManager& manager = JPetManager::GetManager();
@@ -241,8 +252,9 @@ int main(int argc, char* argv[])
     optimalThresholds[71] = 110;
     optimalThresholds[72] = 110;
 
-	 
-  signalAnalysis(manager, thresholds);
+    testHowTOTCutInfluencesEDep(manager,100, 0);
+
+  
 
 
   // run the analysis
