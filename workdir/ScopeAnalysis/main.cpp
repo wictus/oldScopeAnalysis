@@ -110,7 +110,7 @@ void LORAnalysis(JPetManager& manager, std::vector<double> thresholds)
   SDAMatchLORs* matchLORs = new SDAMatchLORs("Module SDAMatchLOR: save as LOR those hits which are in same TSlot and come from different scintillators", "Produces root file with JPetLORs from root file with JPetHits, JPetLORs are empty ", "matchedHits.hits.root", "matchedLORs.lors.root");
   manager.AddTask(matchLORs);
   
-  //	SDALORCalculateEnergy* calculateEnergy = new SDALORCalculateEnergy("Module SDAHitCalculateEnergy: calculates energy of JPetHits", "Reads arithmetic sum of charges from JPetPhys and scales them with factor from SDAHitFindEnergyConstant module", "matchedLORs.lors.root", "calculatedEnergy.lors.root", dECalibration);
+  
 
   
 }
@@ -224,12 +224,30 @@ void outputForReco(JPetManager& manager)
 
 void testHowTOTCutInfluencesEDep(JPetManager& manager, const double TOTthreshold, const double TOTCut)
 {
-  SDAMatchLORs* matchLORs = new SDAMatchLORs("Module SDAMatchLOR: save as LOR those hits which are in same TSlot and come from different scintillators", "Produces root file with JPetLORs from root file with JPetHits, JPetLORs are empty ", "calculatedEnergy.hits.root", "matchedLORs.lors.root");
-  manager.AddTask(matchLORs);
-
-  SDALORCalculateTOT* changeChargeToTOTInPhysSignals = new SDALORCalculateTOT( "swappingChargeToTOT","swappingChargeToTOT", "matchedLORs.lors.root", "TOTswapped.lors.root", TOTthreshold);
-  //SDALORCutOnTOT* cutOnTOT = new SDALORCutOnTOT("cutting on TOT","cutting on TOT", "TOTswapped.lors.root", "TOTcut.lors.root", TOTCut, 0);
-  manager.AddTask(changeChargeToTOTInPhysSignals);
+  std::vector< std::pair<int,double>> dECalibration;
+    std::pair<int,double> topStripE(72, 6.468);  
+    std::pair<int,double> bottomStripE(71, 6.6);
+    dECalibration.push_back(topStripE);
+    dECalibration.push_back(bottomStripE);
+    
+    
+  SDAMatchLORs* matchLORs = new SDAMatchLORs("Module SDAMatchLOR: save as LOR those hits which are in same TSlot and come from different scintillators", "Produces root file with JPetLORs from root file with JPetHits, JPetLORs are empty ", "matchedHits.hits.root", "matchedLORs.lors.root");
+  
+  SDALORCalculateEnergy* calculateEnergy = new SDALORCalculateEnergy("Module SDAHitCalculateEnergy: calculates energy of JPetHits", "Reads arithmetic sum of charges from JPetPhys and scales them with factor from SDAHitFindEnergyConstant module", "matchedLORs.lors.root", "calculatedEnergy.lors.root", dECalibration);
+  
+  SDALORCalculateTOT* changeChargeToTOTInPhysSignals = new SDALORCalculateTOT( "swappingChargeToTOT","swappingChargeToTOT", "calculatedEnergy.lors.root", "TOTswapped.lors.root", TOTthreshold);
+  
+  std::stringstream buf;
+  buf << TOTthreshold;
+  TOTVSQ* plotTOTvsQ = new TOTVSQ("TOTvsQplot","TOTvsQplot", "TOTswapped.lors.root", "out.root", buf.str());
+  
+  SDALORCutOnTOT* cutOnTOT = new SDALORCutOnTOT("cutting on TOT","cutting on TOT", "TOTswapped.lors.root", "TOTcut.lors.root", TOTCut);
+  
+   manager.AddTask(matchLORs);
+   manager.AddTask(calculateEnergy);
+   manager.AddTask(plotTOTvsQ);
+   manager.AddTask(changeChargeToTOTInPhysSignals);
+   manager.AddTask(cutOnTOT);
 }
 
 int main(int argc, char* argv[])
@@ -252,7 +270,7 @@ int main(int argc, char* argv[])
     optimalThresholds[71] = 110;
     optimalThresholds[72] = 110;
 
-    testHowTOTCutInfluencesEDep(manager,100, 0);
+    testHowTOTCutInfluencesEDep(manager,100, 4650);
 
   
 

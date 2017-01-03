@@ -3,12 +3,11 @@
 ClassImp(SDALORCutOnTOT);
 
 SDALORCutOnTOT::SDALORCutOnTOT(const char* name, const char* title,
-                                       const char* in_file_suffix, const char* out_file_suffix, const double thresholdValue, const int PMTID):
+                                       const char* in_file_suffix, const char* out_file_suffix, const double thresholdValue):
   JPetCommonAnalysisModule(name, title, in_file_suffix, out_file_suffix), 
-  fPMTID(PMTID)
+  fTOTThreshold(thresholdValue)
 {
   setVersion(MODULE_VERSION);
-  fTOTThreshold = thresholdValue; 
 }
 
 SDALORCutOnTOT::~SDALORCutOnTOT()
@@ -27,7 +26,7 @@ void SDALORCutOnTOT::exec()
   const JPetLOR lor = (JPetLOR&) fReader->getData();
 
   //if( lor.getFirstHit().getEnergy() > fThresholdEnergy && lor.getSecondHit().getEnergy() > fThresholdEnergy && lor.getFirstHit().getEnergy() < upperThreshold && lor.getSecondHit().getEnergy() < upperThreshold)
-  if( lor.getFirstHit().getEnergy() > fTOTThreshold&& lor.getSecondHit().getEnergy() > fTOTThreshold)
+  if( lor.getSecondHit().getSignalA().getPhe() > fTOTThreshold) //PMT on bottom left, used in PhD
 	{
 	  fWriter->write(lor);	
 	  fAboveThreshold++;

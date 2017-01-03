@@ -23,7 +23,8 @@ class SDALORCutOnTOT : public JPetCommonAnalysisModule
 public:
 
   SDALORCutOnTOT(const char* name, const char* title,
-               const char* in_file_suffix, const char* out_file_suffix, const double thresholdValue, const int PMDID);
+               const char* in_file_suffix, const char* out_file_suffix, 
+	       const double thresholdValue);
   virtual ~SDALORCutOnTOT();
   virtual void exec();
   virtual void begin();
