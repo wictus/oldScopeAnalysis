@@ -12,7 +12,7 @@ public:
   virtual void end();
   virtual void exec();
   ClassDef(SDALORCalculateTOT, 1 );
-  
+  JPetPhysSignal swapChargeToTOTInPhysSignal(JPetPhysSignal signal);
 private:
   double fThreshold;
 };

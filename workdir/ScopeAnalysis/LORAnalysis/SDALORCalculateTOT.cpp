@@ -31,66 +31,38 @@ void SDALORCalculateTOT::exec()
   fReader->getEntry(fEvent);
 
   JPetLOR& oldLOR = dynamic_cast< JPetLOR& > ( fReader->getData() );
-  JPetLOR newLOR = oldLOR;
- 
-  JPetRecoSignal signalToBeProcessed = newLOR.getFirstHit().getSignalA().getRecoSignal();  
-  double calculatedTOT = JPetRecoSignalTools::calculateTOT( signalToBeProcessed , fThreshold);
+  JPetLOR newLOR;
   
-  if(calculatedTOT < 100)
+  JPetPhysSignal signalA = swapChargeToTOTInPhysSignal(oldLOR.getFirstHit().getSignalA());  
+  JPetPhysSignal signalB = swapChargeToTOTInPhysSignal(oldLOR.getFirstHit().getSignalB());
+  JPetPhysSignal signalC = swapChargeToTOTInPhysSignal(oldLOR.getSecondHit().getSignalA());      
+  JPetPhysSignal signalD = swapChargeToTOTInPhysSignal(oldLOR.getSecondHit().getSignalB());      
+  
+  if(signalA.getPhe() < 100 || signalB.getPhe() < 100 || signalC.getPhe() < 100 || signalD.getPhe() < 100)
   {
     fEvent++;
     return;
   }  
   
-  JPetPhysSignal signalToChange = oldLOR.getFirstHit().getSignalA();
-  signalToChange.setPhe(calculatedTOT);
-  JPetHit hitToChange = newLOR.getFirstHit();
-  hitToChange.setSignalA( signalToChange );
+  JPetHit hitToChangeA = oldLOR.getFirstHit();
+  hitToChangeA.setSignalA( signalA );
+  hitToChangeA.setSignalB( signalB );
   
-  signalToBeProcessed = newLOR.getFirstHit().getSignalB().getRecoSignal();
-  calculatedTOT = JPetRecoSignalTools::calculateTOT( signalToBeProcessed , fThreshold);
+  JPetHit hitToChangeB = oldLOR.getSecondHit();
+  hitToChangeB.setSignalA( signalC );
+  hitToChangeB.setSignalB( signalD );
   
-  if(calculatedTOT < 100)
-  {
-    fEvent++;
-    return;
-  }  
-  
-  signalToChange = oldLOR.getFirstHit().getSignalB();
-  signalToChange.setPhe(calculatedTOT);
-  hitToChange.setSignalB( signalToChange );
-  
-  newLOR.setFirstHit(hitToChange);
-  
-  signalToBeProcessed = newLOR.getSecondHit().getSignalA().getRecoSignal(); 
-  calculatedTOT = JPetRecoSignalTools::calculateTOT( signalToBeProcessed , fThreshold);
-  
-  if(calculatedTOT < 100)
-  {
-    fEvent++;
-    return;
-  }  
-  
-  signalToChange = oldLOR.getSecondHit().getSignalA();
-  signalToChange.setPhe(calculatedTOT);
-  hitToChange.setSignalA( signalToChange );
-  
-  signalToBeProcessed = newLOR.getSecondHit().getSignalB().getRecoSignal();
-  calculatedTOT = JPetRecoSignalTools::calculateTOT( signalToBeProcessed , fThreshold);
-  
-  if(calculatedTOT < 100)
-  {
-    fEvent++;
-    return;
-  }
-  
-  signalToChange = oldLOR.getSecondHit().getSignalB();
-  signalToChange.setPhe(calculatedTOT);
-  hitToChange.setSignalB( signalToChange );
-  
-  newLOR.setSecondHit(hitToChange);
+  newLOR.setFirstHit(hitToChangeA);
+  newLOR.setSecondHit(hitToChangeB);
   
   fWriter->write(newLOR);
 
   fEvent++;
+}
+
+JPetPhysSignal SDALORCalculateTOT::swapChargeToTOTInPhysSignal(JPetPhysSignal signal)
+{
+  double TOT = JPetRecoSignalTools::calculateTOT( signal.getRecoSignal(), fThreshold); 
+  signal.setPhe( TOT );
+  return signal;
 }
