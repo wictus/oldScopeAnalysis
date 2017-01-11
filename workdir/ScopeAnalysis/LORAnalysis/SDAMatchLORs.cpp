@@ -73,6 +73,12 @@ void SDAMatchLORs::exec()
 		if(fArray[firstHitIndex].getScintillator().getID() != fArray[secondHitIndex].getScintillator().getID() )
 		{
 			JPetLOR lor( 0,0, fArray[firstHitIndex], fArray[secondHitIndex]);
+			/*
+			std::cout << "PM1: " <<lor.getFirstHit().getSignalA().getPM().getID() << std::endl;
+			std::cout << "PM2: " <<lor.getFirstHit().getSignalB().getPM().getID() << std::endl;
+			std::cout << "PM3: " <<lor.getSecondHit().getSignalA().getPM().getID() << std::endl;
+			std::cout << "PM4: " <<lor.getSecondHit().getSignalB().getPM().getID() << std::endl;
+			*/
 			fWriter->write(lor);
 			fMatched++;
 		}

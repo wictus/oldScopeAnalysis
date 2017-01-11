@@ -116,6 +116,10 @@ void SDAMatchHits::exec()
 			if( signalAset && signalBset )
 			{
 				hit.setScintillator(fSegragatedSignals[ stripeIndex ][ signalIndex ].getPM().getScin() );	
+				/*
+				std::cout << "PM left: " << hit.getSignalA().getPM().getID() << std::endl;
+				std::cout << "PM right: " << hit.getSignalB().getPM().getID() << std::endl;
+				*/
 				fWriter->write(hit);	
 				break;
 			}
