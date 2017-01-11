@@ -24,7 +24,7 @@ public:
 
   SDALORCutOnTOT(const char* name, const char* title,
                const char* in_file_suffix, const char* out_file_suffix, 
-	       const double thresholdValue);
+	       const double thresholdValue, const int PMTID);
   virtual ~SDALORCutOnTOT();
   virtual void exec();
   virtual void begin();
@@ -32,8 +32,10 @@ public:
   ClassDef(SDALORCutOnTOT, MODULE_VERSION );
 
 private:
-  int fPMTID;
+  void performCut(const JPetLOR& lor);
+  JPetPhysSignal findSignalToCut(const JPetLOR& lor);
   double fTOTThreshold;
+  int fPMTID;
   int fAboveThreshold;
 };
 
