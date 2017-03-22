@@ -99,9 +99,9 @@ void hitsAnalysis(JPetManager& manager)
 
     SDAHitCalculateEnergy* calculateEnergy = new SDAHitCalculateEnergy("Module SDAHitCalculateEnergy: calculates energy of JPetHits", "Reads arithmetic sum of charges from JPetPhys and scales them with factor from SDAHitFindEnergyConstant module", "foundEnergy.hits.root", "calculatedEnergy.hits.root");
 	
-    manager.AddTask(matchHits);
+//    manager.AddTask(matchHits);
     manager.AddTask(makeFit);
-    manager.AddTask(calculateEnergy);
+//    manager.AddTask(calculateEnergy);
     
 }
 
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
   JPetManager& manager = JPetManager::GetManager();
   manager.ParseCmdLine(argc, argv);
   std::vector<double> thr;
-  signalAnalysis(manager,thr);
+//  signalAnalysis(manager,thr);
   hitsAnalysis(manager);
   
 

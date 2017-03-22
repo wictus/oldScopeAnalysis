@@ -5,7 +5,7 @@ FindConstant::FindConstant(const std::vector<double>& inputEvents, const TString
 	scintillatorID = scinID;
 	EXPEvents = inputEvents;
 	minBin = 0;
-	maxBin = 1900; //500
+	maxBin = 500; //500
 	lowerCut = 200;
 	upperCut = 380;
 	fileName = file;
@@ -81,10 +81,15 @@ double FindConstant::findBestBeta(const double start, const double stop, const d
 
 
 double FindConstant::execute()
-{        
-        energyResolution = findBestBeta(0.0, 3.0, 0.1, true);
+{       
+	fillEXPHisto();
+        produceSIMEvents( SIMEvents, 1.34338 );
+        fillSIMHisto(1, 1);
+	saveFittedHisto(1.34338);
+	 
+        energyResolution = findBestBeta(0.5, 2.0, 0.1, true);
 	
-	energyResolution = findBestBeta( energyResolution - 0.2, energyResolution+0.2 , 0.025, false);
+	energyResolution = findBestBeta( energyResolution - 0.4, energyResolution+0.4 , 0.025, false);
 	
  	doFinalFit(energyResolution);
 	
@@ -130,7 +135,7 @@ double FindConstant::findHighResolutionError(const double eRes)
 
 	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) /(bestNumberOfBins - 3.0);
 		
-	if( chi2 > bestChi2 + 3.67 )
+	if( chi2 > bestChi2/(bestNumberOfBins-3.0) + 3.67 )
 	  break;
 	else 
 	  resolution=resolution+0.01;
@@ -150,9 +155,9 @@ double FindConstant::findLowResolutionError(const double eRes)
         produceSIMEvents( SIMEvents, resolution );
         fillSIMHisto(bestNorm, bestAlpha);
 
-	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) / (bestNumberOfBins - 3.0);
+	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) /(bestNumberOfBins - 3.0);
 		
-	if( chi2 > bestChi2 + 3.67 )
+	if( chi2 > bestChi2/(bestNumberOfBins-3.0) + 3.67 )
 	  break;
 	else 
 	  resolution=resolution-0.01;
@@ -241,7 +246,7 @@ void FindConstant::produceSIMEvents( std::vector<double>& SIMEvents, const doubl
 
         //// PETLA DO RYSOWANIA WIDMA
 
-        for (i=0;i<1E6;) {
+        for (i=0;i<1E5;) {
 
 
 
@@ -373,9 +378,8 @@ double FindConstant::findBestAlpha(const double resolution)
   std::stringstream name;
   name << "_bestAlpha_" << alphas[ minChi2.first - chi2s.begin() ] << "_ForRes_" << resolution	<<"_ForScint_"<<scintillatorID ; ;
   
-  title+=name.str()+".png";
-  
-   c1->SaveAs( (filePath+title) );
+  c1->SaveAs( (filePath+title+".png") );
+  c1->SaveAs( (filePath+title+".root") );
 
   return alphas[ minChi2.first - chi2s.begin() ];
 }
@@ -414,9 +418,8 @@ double FindConstant::findBestNorm(const double alpha)
   std::stringstream name;
   name << "_bestNorm_" <<  norms[ minChi2.first - chi2s.begin() ] << "ForAlpha_" << alpha <<"_ForScint_"<<scintillatorID ;
   
-  title+=name.str()+".png";
-  
-  c1->SaveAs( (filePath+title) );
+  c1->SaveAs( (filePath+title+".png") );
+  c1->SaveAs( (filePath+title+".root") );
  
   return norms[ minChi2.first - chi2s.begin() ];
 }
@@ -452,9 +455,9 @@ void FindConstant::saveFittedHisto(const double energyResolution)
                 TString title= streamForEResExtraction.str();
                 title+="position";
                 title+=sourcePosition;
-                title+=".png";
                 gStyle->SetOptStat(0);
-                c1->SaveAs( filePath+title);
+                c1->SaveAs( filePath+title +".png");
+                c1->SaveAs( filePath+title +".root");
 
 }
 
@@ -604,6 +607,7 @@ double FindConstant::drawChi2AndFitPol2(const std::vector<double>& res, const st
         quadraticFit->Draw("same");
 
         c1->SaveAs(  filePath+"/Chi2Plot_strip_fitRegion_"+streamForEResExtraction.str() + expHistoTitle+".png" );
+        c1->SaveAs(  filePath+"/Chi2Plot_strip_fitRegion_"+streamForEResExtraction.str() + expHistoTitle+".root" );
 
 	m->Add(gr);
 
@@ -621,6 +625,7 @@ double FindConstant::drawChi2AndFitPol2(const std::vector<double>& res, const st
 	m->Draw("AP");
 
         c1->SaveAs( (filePath+"/Chi2Plot_strip_"+streamForEResExtraction.str() + expHistoTitle+".png") );
+        c1->SaveAs( (filePath+"/Chi2Plot_strip_"+streamForEResExtraction.str() + expHistoTitle+".root") );
 
         delete gr;
         delete c1;
