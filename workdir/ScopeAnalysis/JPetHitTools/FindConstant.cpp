@@ -82,11 +82,7 @@ double FindConstant::findBestBeta(const double start, const double stop, const d
 
 double FindConstant::execute()
 {       
-	fillEXPHisto();
-        produceSIMEvents( SIMEvents, 1.34338 );
-        fillSIMHisto(1, 1);
-	saveFittedHisto(1.34338);
-	 
+		 
         energyResolution = findBestBeta(0.5, 2.0, 0.1, true);
 	
 	energyResolution = findBestBeta( energyResolution - 0.4, energyResolution+0.4 , 0.025, false);
