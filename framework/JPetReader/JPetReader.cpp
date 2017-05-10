@@ -85,7 +85,7 @@ bool JPetReader::readData (const char* treename)
 JPetTreeHeader* JPetReader::getHeaderClone() const
 {
   // get a pointer to a header wchich belongs to fTree
-  JPetTreeHeader* header =  (JPetTreeHeader*)fTree->GetUserInfo()->At(JPetUserInfoStructure::kHeader);
+  JPetTreeHeader* header =  (JPetTreeHeader*)fFile->Get("header");
   // return a COPY of this header
   return new JPetTreeHeader( *header );
 }

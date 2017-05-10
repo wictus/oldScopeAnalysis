@@ -42,6 +42,7 @@ void JPetWriter::closeFile()
 void JPetWriter::writeHeader(TObject* header)
 {
   // @todo as the second argument should be passed some enum to indicate position of header
-  fTree->GetUserInfo()->AddAt(header, JPetUserInfoStructure::kHeader);
+  //fTree->GetUserInfo()->AddAt(header, JPetUserInfoStructure::kHeader);
+  header->Write("header");
 }
 
