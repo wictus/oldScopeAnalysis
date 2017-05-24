@@ -71,7 +71,7 @@ void signalAnalysis( JPetManager& manager, const std::vector<double> thresholds)
 	
 	SDARecoAmplitudeCalc* amplitudeCalc = new SDARecoAmplitudeCalc("Module SDARecoAmplitudeCalc: calculates signal amplitudes","","charge.sig.root","amps.sig.root");
 	
-	SDARecoTimeAtThr* timeAtThr = new SDARecoTimeAtThr("Module SDARecoTimeAtThr: calculates time at given threshold","Interpolates time between points as a line and check its crossing with threshold levels", "amps.sig.root","times.sig.root", thresholds);
+	SDARecoTimeAtThr* timeAtThr = new SDARecoTimeAtThr("Module SDARecoTimeAtThr: calculates time at given threshold","Interpolates time between points as a line and check its crossing with threshold levels", "charge.sig.root","times.sig.root", thresholds);
 
 	SDAMakePhysSignals* convertToPhys = new SDAMakePhysSignals("Module SDAMakePhysSignals: convert RecoSignals to Phys signals", "Produces phys signals with recosignal setted as their parents", "times.sig.root", "afterPhysConvert.sig.root");  
 	
@@ -79,8 +79,8 @@ void signalAnalysis( JPetManager& manager, const std::vector<double> thresholds)
   	manager.AddTask(chargeCalc);
 	//manager.AddTask(drawOffsets);
 	//manager.AddTask(drawCharges);
-   //	manager.AddTask(amplitudeCalc);
-   	//manager.AddTask(timeAtThr);
+//   	manager.AddTask(amplitudeCalc);
+   	manager.AddTask(timeAtThr);
    	manager.AddTask(convertToPhys);
 
 }
@@ -99,7 +99,8 @@ void hitsAnalysis(JPetManager& manager)
 
     SDAHitCalculateEnergy* calculateEnergy = new SDAHitCalculateEnergy("Module SDAHitCalculateEnergy: calculates energy of JPetHits", "Reads arithmetic sum of charges from JPetPhys and scales them with factor from SDAHitFindEnergyConstant module", "foundEnergy.hits.root", "calculatedEnergy.hits.root");
 	
-//    manager.AddTask(matchHits);
+//     manager.AddTask(matchHits);
+    
     manager.AddTask(makeFit);
 //    manager.AddTask(calculateEnergy);
     
@@ -109,10 +110,7 @@ void LORAnalysis(JPetManager& manager, std::vector<double> thresholds)
 {
   SDAMatchLORs* matchLORs = new SDAMatchLORs("Module SDAMatchLOR: save as LOR those hits which are in same TSlot and come from different scintillators", "Produces root file with JPetLORs from root file with JPetHits, JPetLORs are empty ", "matchedHits.hits.root", "matchedLORs.lors.root");
   manager.AddTask(matchLORs);
-  
-  
-
-  
+ 
 }
 
 void amplitudeFitsFromLORs(JPetManager& manager)
@@ -273,10 +271,10 @@ int main(int argc, char* argv[])
   JPetManager& manager = JPetManager::GetManager();
   manager.ParseCmdLine(argc, argv);
   std::vector<double> thr;
-  signalAnalysis(manager,thr);
+  thr.push_back(110);
+  //signalAnalysis(manager,thr);
   hitsAnalysis(manager);
   
-
 
   // run the analysis
   manager.Run();
