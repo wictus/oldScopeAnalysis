@@ -6,10 +6,11 @@ ClassImp(SDAHitFindEnergyConstant);
 SDAHitFindEnergyConstant::SDAHitFindEnergyConstant(const char* name, const char* title,
                            const char* in_file_suffix, const char* out_file_suffix) : JPetCommonAnalysisModule(name, title, in_file_suffix, out_file_suffix)
 {
+  std::cout << "In SDAHitFindEnergyConstant::constructor \n";
 }
 
 void SDAHitFindEnergyConstant::begin()
-{
+{	
 }
 
 SDAHitFindEnergyConstant::~SDAHitFindEnergyConstant()
@@ -18,6 +19,7 @@ SDAHitFindEnergyConstant::~SDAHitFindEnergyConstant()
 }
 void SDAHitFindEnergyConstant::exec()
 {
+      
 	const JPetParamBank& bank = getParamBank();
 	
 	if(fEvent < fEventNb ){

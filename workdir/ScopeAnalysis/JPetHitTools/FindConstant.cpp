@@ -11,7 +11,7 @@ FindConstant::FindConstant(const std::vector<double>& inputEvents, const TString
 	fileName = file;
 	sourcePosition = sourcePos;
 	gErrorIgnoreLevel = kFatal;
-	binNumber = 100;//(maxBin - minBin)/20.0;
+	binNumber = 250;//(maxBin - minBin)/20.0;
 	
 	
 	EXPHisto = new TH1F("Experimental charge histogram", "expHisto", binNumber, minBin, maxBin);
@@ -54,16 +54,17 @@ double FindConstant::findBestBeta(const double start, const double stop, const d
         performFit(energyResolution);
  	fillSIMHisto(bestNorm, bestAlpha);
 
-	bestNumberOfBins= -1.0* (double(SIMHisto->GetXaxis()->FindBin(lowerCut / bestAlpha)) - double(SIMHisto->GetXaxis()->FindBin(upperCut / bestAlpha)) );
-
-        INFO( Form("Beta equal to %f was fitted with chi2: %f for number of bins: %f", energyResolution, compareHistogramsByChi2(bestNorm, bestAlpha) , bestNumberOfBins) );
+	double lowerBin = double(SIMHisto->GetBinCenter(lowerCut/bestAlpha));
+	double higherBin = double( SIMHisto->GetBinCenter(upperCut/bestAlpha));
+	
+	bestNumberOfBins= higherBin-lowerBin;      
+	INFO( Form("Beta equal to %f was fitted with chi2: %f for number of bins: %f", energyResolution, compareHistogramsByChi2(bestNorm, bestAlpha)/(bestNumberOfBins-3)  , bestNumberOfBins) );
 	
 	checkedBetaValues.push_back(energyResolution);
 	chi2.push_back(compareHistogramsByChi2(bestNorm, bestAlpha));
-	
+
 	fillEXPHisto(1.0/bestNorm, 1.0/bestAlpha);
 	fillSIMHisto();
-
 	saveFittedHisto(energyResolution);        
 	}
 
@@ -83,7 +84,7 @@ double FindConstant::findBestBeta(const double start, const double stop, const d
 double FindConstant::execute()
 {       
 		 
-        energyResolution = findBestBeta(0.5, 2.0, 0.1, true);
+        energyResolution = findBestBeta(0.5, 2.5, 0.1, true);
 	
 	energyResolution = findBestBeta( energyResolution - 0.4, energyResolution+0.4 , 0.025, false);
 	
@@ -93,7 +94,7 @@ double FindConstant::execute()
 	
 	INFO( Form( "Found lower error: %f", lowErrorEnergyResolution ) );
 	
-	highErrorEnergyResolution = energyResolution - findHighResolutionError(energyResolution);
+	highErrorEnergyResolution = findHighResolutionError(energyResolution)- energyResolution;
 	
 	INFO( Form( "Found higher error: %f", highErrorEnergyResolution ) );
 	
@@ -122,19 +123,28 @@ void FindConstant::saveErrorsResults( const std::string& name )
 
 double FindConstant::findHighResolutionError(const double eRes)
 {
-  double chi2 = 0;
+  double chi2 = 0, bins = 0;
   double resolution = eRes;
   while(true) {
 	fillEXPHisto();
         produceSIMEvents( SIMEvents, resolution );
         fillSIMHisto(bestNorm, bestAlpha);
 
-	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) /(bestNumberOfBins - 3.0);
-		
-	if( chi2 > bestChi2/(bestNumberOfBins-3.0) + 3.67 )
+	double lowerBin = double(SIMHisto->GetBinCenter(lowerCut/bestAlpha));
+	double higherBin = double( SIMHisto->GetBinCenter(upperCut/bestAlpha));
+	bins = higherBin - lowerBin;
+	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha);
+	
+	std::cout << chi2 << "  " << resolution << std::endl;
+	
+	if( chi2 > bestChi2 + 3.67 )
 	  break;
 	else 
 	  resolution=resolution+0.01;
+	
+	fillEXPHisto(1.0/bestNorm, 1.0/bestAlpha);
+	fillSIMHisto();
+	saveFittedHisto(resolution);        	  
   }
   INFO( Form( "Found high error at: %f", resolution ) );
   
@@ -143,7 +153,7 @@ double FindConstant::findHighResolutionError(const double eRes)
 
 double FindConstant::findLowResolutionError(const double eRes)
 {
-  double chi2 = 0;
+  double chi2 = 0, bins = 0;
   double resolution = eRes;
   while(true) {
 	fillEXPHisto();
@@ -151,12 +161,20 @@ double FindConstant::findLowResolutionError(const double eRes)
         produceSIMEvents( SIMEvents, resolution );
         fillSIMHisto(bestNorm, bestAlpha);
 
-	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha) /(bestNumberOfBins - 3.0);
-		
-	if( chi2 > bestChi2/(bestNumberOfBins-3.0) + 3.67 )
+	double lowerBin = double(SIMHisto->GetBinCenter(lowerCut/bestAlpha));
+	double higherBin = double( SIMHisto->GetBinCenter(upperCut/bestAlpha));
+	bins = higherBin - lowerBin;
+	chi2 = compareHistogramsByChi2(bestNorm, bestAlpha);
+	
+	std::cout << chi2 << "  " << resolution << std::endl;
+	if( chi2 > bestChi2 + 3.67 )
 	  break;
 	else 
 	  resolution=resolution-0.01;
+	
+	fillEXPHisto(1.0/bestNorm, 1.0/bestAlpha);
+	fillSIMHisto();
+	saveFittedHisto(resolution);        	
   }
   
   INFO( Form( "Found low error at: %f", resolution ) );
@@ -176,16 +194,21 @@ void FindConstant::doFinalFit(const double eRes)
 	
         performFit(eRes);
  	fillSIMHisto(bestNorm, bestAlpha);
+			
 
-	bestNumberOfBins= -1.0* (double(SIMHisto->GetXaxis()->FindBin(lowerCut / bestAlpha)) - double(SIMHisto->GetXaxis()->FindBin(upperCut / bestAlpha)) );
-
-	bestChi2 = compareHistogramsByChi2(bestNorm, bestAlpha) / (bestNumberOfBins - 3.0);
 	
-        INFO( Form("Beta equal to %f was fitted with chi2: %f for number of bins: %f", energyResolution, bestChi2, bestNumberOfBins) );
+	double lowerBin = double(SIMHisto->GetBinCenter(lowerCut/bestAlpha));
+	
+	double higherBin = double( SIMHisto->GetBinCenter(upperCut/bestAlpha));
 		
+	bestNumberOfBins= higherBin-lowerBin;
+
+	bestChi2 = compareHistogramsByChi2(bestNorm, bestAlpha);
+
+	INFO( Form("Beta equal to %f was fitted with chi2: %f for number of bins: %f", energyResolution, bestChi2/ (bestNumberOfBins - 3.0), bestNumberOfBins) );
+
 	fillEXPHisto(1.0/bestNorm, 1.0/bestAlpha);
 	fillSIMHisto();
-
 	saveFittedHisto(energyResolution);        
 }
 
@@ -374,8 +397,10 @@ double FindConstant::findBestAlpha(const double resolution)
   std::stringstream name;
   name << "_bestAlpha_" << alphas[ minChi2.first - chi2s.begin() ] << "_ForRes_" << resolution	<<"_ForScint_"<<scintillatorID ; ;
   
-  c1->SaveAs( (filePath+title+".png") );
-  c1->SaveAs( (filePath+title+".root") );
+  title+=name.str();
+  
+//   c1->SaveAs( (filePath+title+".png") );
+//   c1->SaveAs( (filePath+title+".root") );
 
   return alphas[ minChi2.first - chi2s.begin() ];
 }
@@ -414,8 +439,10 @@ double FindConstant::findBestNorm(const double alpha)
   std::stringstream name;
   name << "_bestNorm_" <<  norms[ minChi2.first - chi2s.begin() ] << "ForAlpha_" << alpha <<"_ForScint_"<<scintillatorID ;
   
-  c1->SaveAs( (filePath+title+".png") );
-  c1->SaveAs( (filePath+title+".root") );
+  title+=name.str();
+  
+//   c1->SaveAs( (filePath+title+".png") );
+//   c1->SaveAs( (filePath+title+".root") );
  
   return norms[ minChi2.first - chi2s.begin() ];
 }
@@ -423,9 +450,10 @@ double FindConstant::findBestNorm(const double alpha)
 double FindConstant::compareHistogramsByChi2( const double normalisation, const double alpha)
 {
         double chi2 = 0.0;
-
+	
         for(unsigned int i = 0; i < EXPHisto->GetSize() - (unsigned int)2; i++)
         {
+	  
                 if( 0 == EXPHisto->GetBinContent(i) && 0 == SIMHisto->GetBinContent(i) )
                         continue;
 
@@ -526,10 +554,8 @@ std::vector< std::pair<double,double> > FindConstant::extractPointValuesAroundMi
   auto minimum = minChi2.first - vec.begin() ;
   
   double foundMinimum = vec.at(minimum).first ;
-  INFO(Form("minimum: %f", foundMinimum));
-  
     
-  for(unsigned int currentPoint = minimum ; currentPoint < (vec.size()-1) && vec[currentPoint+1].first > vec[currentPoint].first && (50.0+foundMinimum) > vec[currentPoint].first ; currentPoint++)
+  for(unsigned int currentPoint = minimum ; currentPoint < (vec.size()-1) && (20*foundMinimum) > vec[currentPoint].first ; currentPoint++)
   {
     exctratedPoints.push_back( vec[currentPoint] );
     if( currentPoint+1 == vec.size()-1 )
@@ -539,7 +565,7 @@ std::vector< std::pair<double,double> > FindConstant::extractPointValuesAroundMi
     }
   }
   
- for(int currentPoint = minimum-1 ;  currentPoint != -1 && vec[currentPoint-1].first > vec[currentPoint].first && (50.0+foundMinimum) > vec[currentPoint].first ; currentPoint-=1)
+ for(int currentPoint = minimum-1 ;  currentPoint != -1 && (20*foundMinimum) > vec[currentPoint].first ; currentPoint-=1)
   {
     exctratedPoints.push_back( vec[currentPoint] );
     if( currentPoint-1 == 0 )
