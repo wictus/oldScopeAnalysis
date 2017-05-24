@@ -1,9 +1,9 @@
 #!/bin/bash
 
 counter=0
-for i in {225..471..3}
+for i in {30..471..3}
  do
-    if [ "$counter" == "6" ]
+    if [ "$counter" == "7" ]
     then
         counter=0
 	echo "Waiting"
