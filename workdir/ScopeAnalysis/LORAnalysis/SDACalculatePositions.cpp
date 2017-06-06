@@ -28,7 +28,7 @@ void SDACalculatePositions::exec()
         hit.setPosAlongStrip( hit.getTimeDiff()/2.0 * 12.6/1000.0  );
         fLOR.setSecondHit( hit );
         
-	if( fLOR.getFirstHit().getPosAlongStrip() > fCut )
+	if( fabs(fLOR.getFirstHit().getPosAlongStrip()) > fCut && fabs(fLOR.getSecondHit().getPosAlongStrip()) > fCut )
 	{
 	  fEvent++;
 	  return;
