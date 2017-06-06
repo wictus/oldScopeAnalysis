@@ -265,7 +265,7 @@ void FindConstant::produceSIMEvents( std::vector<double>& SIMEvents, const doubl
 
         //// PETLA DO RYSOWANIA WIDMA
 
-        for (i=0;i<1E5;) {
+        for (i=0;i<1E6;) {
 
 
 
