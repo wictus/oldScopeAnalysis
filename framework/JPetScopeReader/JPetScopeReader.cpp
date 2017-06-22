@@ -226,7 +226,7 @@ void JPetScopeReader::createInputObjects(const char* inputFilename) {
 	  (*current_config).pPrefix2      = conf_data.get<string>("pm2.prefix");
 	  (*current_config).pPrefix3      = conf_data.get<string>("pm3.prefix");
 	  (*current_config).pPrefix4      = conf_data.get<string>("pm4.prefix");
-
+	  
 	  // Add oscilloscope files
 	  string starting_loc  = path((const char*)fInFilename).parent_path().string();
                  starting_loc += "/";
@@ -324,8 +324,8 @@ void JPetScopeReader::exec() {
       rsig1.setPM(*((*fIter).pPM1));
       rsig1.setTSlotIndex(tslot_index);
     
-      filename = path(*((*fIter).pIter)).filename().string();
-      filename[1] = ((*fIter).pPrefix2)[1];
+      filename = path(*((*fIter).pIter)).filename().string();      
+      filename[2] = ((*fIter).pPrefix2)[2];
       osc_file = path(*((*fIter).pIter)).parent_path().string();
       osc_file+= "/";
       osc_file+= filename;
@@ -335,7 +335,7 @@ void JPetScopeReader::exec() {
       rsig2.setTSlotIndex(tslot_index);
      
       filename = path(*((*fIter).pIter)).filename().string();
-      filename[1] = ((*fIter).pPrefix3)[1];
+      filename[2] = ((*fIter).pPrefix3)[2];
       osc_file = path(*((*fIter).pIter)).parent_path().string();
       osc_file+= "/";
       osc_file+= filename;
@@ -345,7 +345,7 @@ void JPetScopeReader::exec() {
       rsig3.setTSlotIndex(tslot_index);
     
       filename = path(*((*fIter).pIter)).filename().string();
-      filename[1] = ((*fIter).pPrefix4)[1];
+      filename[2] = ((*fIter).pPrefix4)[2];
       osc_file = path(*((*fIter).pIter)).parent_path().string();
       osc_file+= "/";
       osc_file+= filename;
