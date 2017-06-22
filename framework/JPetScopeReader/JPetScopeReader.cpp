@@ -404,32 +404,32 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
   }
   
   // Read Header
-
-  int segment_size = 0;
-  {
-    char buf[kbuflen];
-    char tmp[kbuflen];
-
-    if (fgets(buf, kbuflen, input_file) != 0)
-    sscanf(buf, "%s %*s %*s", tmp);
-
-    //fScopeType = tmp;
-
-    if (fgets(buf, kbuflen, input_file) != 0)
-    sscanf(buf, "%*s %*s %*s %d", &segment_size);
-
-    if (fgets(buf, kbuflen, input_file) != 0);
-    //sscanf(buf, "%*s %*s %*s");
-
-    if (fgets(buf, kbuflen, input_file) != 0)
-    sscanf(buf, "%*s %s %s %*s", tmp, tmp + kbuflen/2);
-
-    //fDate = tmp;
-    //fTime = tmp + kbuflen/2;
-
-    if (fgets(buf, kbuflen, input_file) != 0);
-    //sscanf(buf, "%*s %*s");
-  }
+// NO HEADER IN THESE INPUT FILES
+//   int segment_size = 0;
+//   {
+//     char buf[kbuflen];
+//     char tmp[kbuflen];
+// 
+//     if (fgets(buf, kbuflen, input_file) != 0)
+//     sscanf(buf, "%s %*s %*s", tmp);
+// 
+//     //fScopeType = tmp;
+// 
+//     if (fgets(buf, kbuflen, input_file) != 0)
+//     sscanf(buf, "%*s %*s %*s %d", &segment_size);
+// 
+//     if (fgets(buf, kbuflen, input_file) != 0);
+//     //sscanf(buf, "%*s %*s %*s");
+// 
+//     if (fgets(buf, kbuflen, input_file) != 0)
+//     sscanf(buf, "%*s %s %s %*s", tmp, tmp + kbuflen/2);
+// 
+//     //fDate = tmp;
+//     //fTime = tmp + kbuflen/2;
+// 
+//     if (fgets(buf, kbuflen, input_file) != 0);
+//     //sscanf(buf, "%*s %*s");
+//   }
 
   // Read Data
 
@@ -440,7 +440,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
     float value, threshold;
     int stat;
  
-    stat = fscanf(input_file, "%f %f\n", &value, &threshold);
+    stat = fscanf(input_file, "%f,%f\n", &value, &threshold);
 
     if (stat != 2) {
       ERROR(Form("Non-numerical symbol in file %s at line %d", filename, i + 6));
