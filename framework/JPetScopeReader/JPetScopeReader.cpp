@@ -139,7 +139,7 @@ JPetParamBank const& JPetScopeReader::createParamBank(ptree const& conf_data) {
 
     (param_bank->getScintillator(0)).setBarrelSlot(param_bank->getBarrelSlot(0));
     (param_bank->getScintillator(1)).setBarrelSlot(param_bank->getBarrelSlot(1));
-
+          
     return *param_bank;
 }
 
@@ -319,8 +319,7 @@ void JPetScopeReader::exec() {
       string filename;
 
       int tslot_index;
-      sscanf(path(osc_file).filename().string().c_str(), "%*3s %d", &tslot_index);
-      std::cout <<"Reading file: " << osc_file.c_str() << std::endl;
+      sscanf(path(osc_file).filename().string().c_str(), "%*5s %d", &tslot_index);
       JPetRecoSignal rsig1 = generateSignal(osc_file.c_str());
       rsig1.setPM(*((*fIter).pPM1));
       rsig1.setTSlotIndex(tslot_index);
@@ -404,33 +403,33 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
   }
   
   // Read Header
-// NO HEADER IN THESE INPUT FILES
-  int segment_size = 0;
-//   {
-//     char buf[kbuflen];
-//     char tmp[kbuflen];
-// 
-//     if (fgets(buf, kbuflen, input_file) != 0)
-//     sscanf(buf, "%s %*s %*s", tmp);
-// 
-//     //fScopeType = tmp;
-// 
-//     if (fgets(buf, kbuflen, input_file) != 0)
-//     sscanf(buf, "%*s %*s %*s %d", &segment_size);
-// 
-//     if (fgets(buf, kbuflen, input_file) != 0);
-//     //sscanf(buf, "%*s %*s %*s");
-// 
-//     if (fgets(buf, kbuflen, input_file) != 0)
-//     sscanf(buf, "%*s %s %s %*s", tmp, tmp + kbuflen/2);
-// 
-//     //fDate = tmp;
-//     //fTime = tmp + kbuflen/2;
-// 
-//     if (fgets(buf, kbuflen, input_file) != 0);
-//     //sscanf(buf, "%*s %*s");
-//   }
+  
+  int segment_size = 16000;
+  {
+    char buf[kbuflen];
+    char tmp[kbuflen];
 
+    if (fgets(buf, kbuflen, input_file) != 0)
+    sscanf(buf, "%s %*s %*s", tmp);
+
+    //fScopeType = tmp;
+
+    if (fgets(buf, kbuflen, input_file) != 0)
+    sscanf(buf, "%*s %*s %*s %d", &segment_size);
+
+    if (fgets(buf, kbuflen, input_file) != 0);
+    //sscanf(buf, "%*s %*s %*s");
+
+    if (fgets(buf, kbuflen, input_file) != 0)
+    sscanf(buf, "%*s %s %s %*s", tmp, tmp + kbuflen/2);
+
+    //fDate = tmp;
+    //fTime = tmp + kbuflen/2;
+
+    if (fgets(buf, kbuflen, input_file) != 0);
+    //sscanf(buf, "%*s %*s");
+  }
+  
   // Read Data
 
   JPetRecoSignal reco_signal(segment_size);
@@ -441,6 +440,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
     int stat;
  
     stat = fscanf(input_file, "%f,%f\n", &value, &threshold);
+    
 
     if (stat != 2) {
       ERROR(Form("Non-numerical symbol in file %s at line %d", filename, i + 6));
@@ -450,7 +450,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
 
     float time = value * ks2ps; // file holds time in seconds, while SigCh requires it in picoseconds
     float amplitude = threshold * kV2mV;  // file holds thresholds in volts, while SigCh requires it in milivolts
-
+    
     reco_signal.setShapePoint(time, amplitude);
   }
 
