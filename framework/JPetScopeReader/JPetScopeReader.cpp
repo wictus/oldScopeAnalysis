@@ -320,7 +320,7 @@ void JPetScopeReader::exec() {
 
       int tslot_index;
       sscanf(path(osc_file).filename().string().c_str(), "%*3s %d", &tslot_index);
-    
+      std::cout <<"Reading file: " << osc_file.c_str() << std::endl;
       JPetRecoSignal rsig1 = generateSignal(osc_file.c_str());
       rsig1.setPM(*((*fIter).pPM1));
       rsig1.setTSlotIndex(tslot_index);
@@ -405,7 +405,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
   
   // Read Header
 // NO HEADER IN THESE INPUT FILES
-//   int segment_size = 0;
+  int segment_size = 0;
 //   {
 //     char buf[kbuflen];
 //     char tmp[kbuflen];
