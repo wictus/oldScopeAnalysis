@@ -73,16 +73,16 @@ void signalAnalysis( JPetManager& manager, const std::vector<double> thresholds)
 	
 	SDARecoTimeAtThr* timeAtThr = new SDARecoTimeAtThr("Module SDARecoTimeAtThr: calculates time at given threshold","Interpolates time between points as a line and check its crossing with threshold levels", "charge.sig.root","times.sig.root", thresholds);
 
-	SDAMakePhysSignals* convertToPhys = new SDAMakePhysSignals("Module SDAMakePhysSignals: convert RecoSignals to Phys signals", "Produces phys signals with recosignal setted as their parents", "times.sig.root", "afterPhysConvert.sig.root");  
+	SDAMakePhysSignals* convertToPhys = new SDAMakePhysSignals("Module SDAMakePhysSignals: convert RecoSignals to Phys signals", "Produces phys signals with recosignal setted as their parents", "charge.sig.root", "afterPhysConvert.sig.root");  
 	
   	manager.AddTask(offsetsCalib);
   	manager.AddTask(chargeCalc);
 	//manager.AddTask(drawOffsets);
 	//manager.AddTask(drawCharges);
 //   	manager.AddTask(amplitudeCalc);
-   	manager.AddTask(timeAtThr);
+//    	manager.AddTask(timeAtThr);
    	manager.AddTask(convertToPhys);
-
+// 
 }
 
 void hitsAnalysis(JPetManager& manager)
@@ -99,18 +99,28 @@ void hitsAnalysis(JPetManager& manager)
 
     SDAHitCalculateEnergy* calculateEnergy = new SDAHitCalculateEnergy("Module SDAHitCalculateEnergy: calculates energy of JPetHits", "Reads arithmetic sum of charges from JPetPhys and scales them with factor from SDAHitFindEnergyConstant module", "foundEnergy.hits.root", "calculatedEnergy.hits.root");
 	
-//     manager.AddTask(matchHits);
+     manager.AddTask(matchHits);
     
-    manager.AddTask(makeFit);
-//    manager.AddTask(calculateEnergy);
+//    manager.AddTask(makeFit);
+    //manager.AddTask(calculateEnergy);
     
 }
 
-void LORAnalysis(JPetManager& manager, std::vector<double> thresholds)
+void LORAnalysis(JPetManager& manager)
 {
   SDAMatchLORs* matchLORs = new SDAMatchLORs("Module SDAMatchLOR: save as LOR those hits which are in same TSlot and come from different scintillators", "Produces root file with JPetLORs from root file with JPetHits, JPetLORs are empty ", "matchedHits.hits.root", "matchedLORs.lors.root");
-  manager.AddTask(matchLORs);
+  
+    std::vector< std::pair<int,double>> dECalibration;
+    std::pair<int,double> topStripE(72, 6.455);  
+    std::pair<int,double> bottomStripE(71, 6.574);
+//    std::pair<int,double> topStripE(86,7.603 );  
+//    std::pair<int,double> bottomStripE(87,7.426 );
+    dECalibration.push_back(topStripE);
+    dECalibration.push_back(bottomStripE);
  
+  SDALORCalculateEnergy* calculateEnergy = new SDALORCalculateEnergy("Module SDAHitCalculateEnergy: calculates energy of JPetHits", "Reads arithmetic sum of charges from JPetPhys and scales them with factor from SDAHitFindEnergyConstant module", "matchedLORs.lors.root", "calculatedEnergy.lors.root", dECalibration);
+  manager.AddTask(matchLORs);
+//  manager.AddTask(calculateEnergy);
 }
 
 void amplitudeFitsFromLORs(JPetManager& manager)
@@ -125,20 +135,24 @@ void amplitudeFitsFromLORs(JPetManager& manager)
 void LORtimeCalib(JPetManager& manager)
 {
       std::map<int, double> optimalThresholds;
-    optimalThresholds[71] = 110;
-    optimalThresholds[72] = 110;
-      
-	SDALORCutOnEnergy* cutOnEnergy = new SDALORCutOnEnergy("Module SDAHitCutOnEnergy: cut all hits with energy lower than 200 keV", "Reads hit energies and cuts all with energy lower than threshold 200 keV", "matchedLORs.lors.root", "cuttedOnEnergy.lors.root", 200);
+//    optimalThresholds[86] = 100;
+//    optimalThresholds[87] = 100;
+     optimalThresholds[1] = 110;
+     optimalThresholds[2] = 110;
+    std::vector<double> thr;
+    thr.push_back(110);
 	
-	SDACalculateTimes* calculateTimesBeforeCalib = new SDACalculateTimes( "", "", "cuttedOnEnergy.lors.root", "calculatedTimes.lors.root", optimalThresholds);
+	SDALORCutOnEnergy* cutOnEnergy = new SDALORCutOnEnergy("Module SDAHitCutOnEnergy: cut all hits with energy lower than 200 keV", "Reads hit energies and cuts all with energy lower than threshold 200 keV", "calculatedEnergy.lors.root", "cuttedOnEnergy.lors.root", 200);
+	SDALORCalculateTimeAtThr* calculateTimesAtThrs = new SDALORCalculateTimeAtThr("Module: SDALORCalculateTimeAtThr is calculating times at threshold before scan!","Reads file with LORs and calculates times at thr for signals", "matchedLORs.lors.root", "timeAtThrFilled.lors.root", thr);
+	SDACalculateTimes* calculateTimesBeforeCalib = new SDACalculateTimes( "", "", "timeAtThrFilled.lors.root", "calculatedTimes.lors.root", optimalThresholds);
 	SDAEstimateTimeCalib* estimateTimeOffsets = new SDAEstimateTimeCalib("","", "calculatedTimes.lors.root", "out.root", optimalThresholds);
 	
 //	std::pair<int,double> topStrip(2, 0.4363*1000.0);
 //      std::pair<int,double> bottomStrip(1, 0.4396*1000.0);
-//	std::pair<int,double> topStrip(72, +0.08849*1000.0);
-//        std::pair<int,double> bottomStrip(71, -0.1695*1000.0);
-	std::pair<int,double> topStrip(72, +0.09357*1000.0);
-        std::pair<int,double> bottomStrip(71, -0.1684*1000.0);
+ 	std::pair<int,double> topStrip(72, +0.08849*1000.0);
+        std::pair<int,double> bottomStrip(71, -0.1695*1000.0);
+//	std::pair<int,double> topStrip(86, +0.0198*1000.0);
+//        std::pair<int,double> bottomStrip(87, -0.1434*1000.0);
         std::vector< std::pair<int,double>> timeCalibration;
         timeCalibration.push_back(topStrip);
         timeCalibration.push_back(bottomStrip);
@@ -146,19 +160,24 @@ void LORtimeCalib(JPetManager& manager)
 	SDADoTimeCalib* doTimeCalib = new SDADoTimeCalib("", "", "calculatedTimes.lors.root", "timeCalibrated.lors.root",  timeCalibration);
 	SDACalculateTimes* calculateTimesAfterOffsetCalib = new SDACalculateTimes( "", "", "timeCalibrated.lors.root", "calculatedTimesAfterOffsetcalib.lors.root", optimalThresholds);
 	SDAEstimateTimeCalib* estimateTimeOffsetsAfterCalib = new SDAEstimateTimeCalib("","", "calculatedTimesAfterOffsetcalib.lors.root", "out.root", optimalThresholds);
-	
-	SDADoTOFCalib* doTOFCalib = new SDADoTOFCalib("", "", "calculatedTimesAfterOffsetcalib.lors.root", "tofCalibrated.lors.root", 6.44132*1000.0);
+	SDAEstimateTOFCalib* estimateTOFBeforeCalib = new SDAEstimateTOFCalib("","", "calculatedTimesAfterOffsetcalib.lors.root", "out.root",110);
+ 	SDADoTOFCalib* doTOFCalib = new SDADoTOFCalib("", "", "calculatedTimesAfterOffsetcalib.lors.root", "tofCalibrated.lors.root", 6.441*1000.0); //for 30 cm 
+//	SDADoTOFCalib* doTOFCalib = new SDADoTOFCalib("", "", "calculatedTimesAfterOffsetcalib.lors.root", "tofCalibrated.lors.root", 6.084*1000.0); //for 50 cm
 
 	SDACalculateTimes* calculateTimesAfterTOFCalib = new SDACalculateTimes( "", "", "tofCalibrated.lors.root", "calculatedTimesAfterTOFcalib.lors.root", optimalThresholds);
+	SDAEstimateTOFCalib* estimateTOFAfterCalib = new SDAEstimateTOFCalib("","", "calculatedTimesAfterTOFcalib.lors.root", "out.root",110);
 
-	manager.AddTask(cutOnEnergy);
+//	manager.AddTask(cutOnEnergy);
+	manager.AddTask(calculateTimesAtThrs);
 	manager.AddTask(calculateTimesBeforeCalib );
-	manager.AddTask(estimateTimeOffsets);
-	manager.AddTask(doTimeCalib);
-	manager.AddTask(calculateTimesAfterOffsetCalib);
-	manager.AddTask(estimateTimeOffsetsAfterCalib);
-	manager.AddTask(doTOFCalib);
-	manager.AddTask(calculateTimesAfterTOFCalib);
+//	manager.AddTask(estimateTimeOffsets);
+// 	manager.AddTask(doTimeCalib);
+// 	manager.AddTask(calculateTimesAfterOffsetCalib);
+//	manager.AddTask(estimateTimeOffsetsAfterCalib);
+//	manager.AddTask(estimateTOFBeforeCalib);
+// 	manager.AddTask(doTOFCalib);
+// 	manager.AddTask(calculateTimesAfterTOFCalib);
+//	manager.AddTask(estimateTOFAfterCalib);
 }
 
 void thresholdAndTimeScan(JPetManager& manager, std::vector<double> thresholds)
@@ -205,19 +224,22 @@ void walkCorrection(JPetManager& manager, std::map<int, double> optimalThreshold
 {
   	SDALORCalculateWalkCorrection* findWalkCorrection = new SDALORCalculateWalkCorrection("","", "calculatedTimesAfterTOFcalib.lors.root", "output.root", optimalThresholds);
 
-    SDALORApplyWalkCorrectionToTOF* correctWalkInTOF = new SDALORApplyWalkCorrectionToTOF("applyingWalkToTOF","applyingWalkToTOF", "TOTswapped.lors.root", "tofWalkCalibrated.lors.root", 1.22073e+06);
-    manager.AddTask(findWalkCorrection );
+    SDALORApplyWalkCorrectionToTOF* correctWalkInTOF = new SDALORApplyWalkCorrectionToTOF("applyingWalkToTOF","applyingWalkToTOF", "calculatedTimesAfterTOFcalib.lors.root", "tofWalkCalibrated.lors.root", 2875.28); // for 30 cm
+//    SDALORApplyWalkCorrectionToTOF* correctWalkInTOF = new SDALORApplyWalkCorrectionToTOF("applyingWalkToTOF","applyingWalkToTOF", "calculatedTimesAfterTOFcalib.lors.root", "tofWalkCalibrated.lors.root", 2548.92);// for 50 cm
+//    manager.AddTask(findWalkCorrection );
     manager.AddTask(correctWalkInTOF );
 }
 
 void outputForReco(JPetManager& manager)
 {
-  // 	SDACalculatePositions* calculatePositions = new SDACalculatePositions("", "", "calculatedTimes.lors.root", "positionsCalculated.lors.root", 110.0, 200);
+   	SDACalculatePositions* calculatePositions = new SDACalculatePositions("", "", "tofWalkCalibrated.lors.root", "positionsCalculated.lors.root", 110.0, 12);
 
-// 	twoDRecoOutput* recoOutput = new twoDRecoOutput("output to reco", "output to reco", "cuttedOnEnergy.lors.root", "dummy.root");	
+ 	twoDRecoOutput* recoOutput = new twoDRecoOutput("output to reco", "output to reco", "positionsCalculated.lors.root", "dummy.root");	
 
 // 	bpOutput* bpOut = new bpOutput("bp out", "bp out","tofCalibrated.lors.root", "dummy.root");	
 
+	manager.AddTask(calculatePositions);
+	manager.AddTask(recoOutput);
 }
 
 void testHowTOTCutInfluencesEDep(JPetManager& manager, const double TOTthreshold, const double TOTCut, const int PMTID)
@@ -272,10 +294,15 @@ int main(int argc, char* argv[])
   manager.ParseCmdLine(argc, argv);
   std::vector<double> thr;
   thr.push_back(110);
-  //signalAnalysis(manager,thr);
-  hitsAnalysis(manager);
-  
-
+//  signalAnalysis(manager,thr);
+//  hitsAnalysis(manager);
+//  LORAnalysis(manager); 
+  LORtimeCalib(manager);
+    std::map<int, double> optimalThresholds;
+    optimalThresholds[71] = 110;	// for 30 cm long strips it is 110
+    optimalThresholds[72] = 110;	// for 50 cm long strips it is 100
+//    walkCorrection(manager, optimalThresholds);
+//   outputForReco(manager);
   // run the analysis
   manager.Run();
 

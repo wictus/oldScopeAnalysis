@@ -44,6 +44,7 @@ void SDARecoTimeAtThr::exec()
 		signalWithOffset.setRecoTimeAtThreshold(fThresholds[i], 0);
 		break;
 	  }
+	  std::cout << timeAtThr << std::endl;
 	  //setting time at threshold for new signal of signal
 	signalWithOffset.setRecoTimeAtThreshold(fThresholds[i], timeAtThr);
   }

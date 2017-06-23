@@ -16,6 +16,7 @@ void SDACalculateTimes::exec()
         fReader->getEntry(fEvent);
 
         JPetLOR& fLOR = dynamic_cast< JPetLOR& > ( fReader->getData() );
+
 	
         double timeLeft = fLOR.getFirstHit().getSignalA().getRecoSignal().getRecoTimeAtThreshold( fSelectedThreshold[ fLOR.getFirstHit().getSignalA().getRecoSignal().getPM().getScin().getID() ]	);
         double timeRight = fLOR.getFirstHit().getSignalB().getRecoSignal().getRecoTimeAtThreshold( fSelectedThreshold [ fLOR.getFirstHit().getSignalB().getRecoSignal().getPM().getScin().getID() ] );
@@ -48,8 +49,8 @@ void SDACalculateTimes::exec()
         fLOR.setSecondHit( hit );
 
 	fLOR.setTimeDiff(  fLOR.getFirstHit().getTime() - fLOR.getSecondHit().getTime() );
-
-        fWriter->write(fLOR);
+	
+        	fWriter->write(fLOR);
 
         fEvent++;
 }

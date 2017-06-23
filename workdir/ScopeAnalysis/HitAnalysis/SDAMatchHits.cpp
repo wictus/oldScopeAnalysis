@@ -104,6 +104,7 @@ void SDAMatchHits::exec()
 	{
 		for( int PMIndex = 0; PMIndex < paramBank.getPMsSize(); PMIndex++)
 		{
+		      
 			if( (fSegragatedSignals[ stripeIndex ][ signalIndex ].getPM().getID() == paramBank.getPM(PMIndex).getID()) && PMIndex%2){
 				hit.setSignalA(fSegragatedSignals[ stripeIndex ][ signalIndex ]);
 				signalAset = true;
@@ -116,10 +117,7 @@ void SDAMatchHits::exec()
 			if( signalAset && signalBset )
 			{
 				hit.setScintillator(fSegragatedSignals[ stripeIndex ][ signalIndex ].getPM().getScin() );	
-				/*
-				std::cout << "PM left: " << hit.getSignalA().getPM().getID() << std::endl;
-				std::cout << "PM right: " << hit.getSignalB().getPM().getID() << std::endl;
-				*/
+				
 				fWriter->write(hit);	
 				break;
 			}

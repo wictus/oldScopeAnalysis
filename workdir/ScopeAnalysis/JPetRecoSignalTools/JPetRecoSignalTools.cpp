@@ -52,14 +52,14 @@
 	  badSignal->Draw("AP");
 	  double offset = signal.getOffset();
 	  const std::vector< shapePoint > signalPoints = signal.getShape();
-// 	  int startingIndex = findStartingIndex(signal);
+	  int startingIndex = findStartingIndex(signal);
           std::vector<double> amplitudePoints;
                 for(unsigned int i = 0; i < signalPoints.size(); ++i)
                 {
                         amplitudePoints.push_back(signalPoints[i].amplitude - offset);
                 }
 	  
-//           double dev = calculateStandardDeviation( amplitudePoints, 20 );
+          double dev = calculateStandardDeviation( amplitudePoints, 20 );
 //Plotting thresholds in amplitude domain
 /*	  for(unsigned int i = 0; i <5 ; i++)
 	  {
@@ -98,15 +98,13 @@
 	  }
 */
 	
-/*  TLine *offsetLine2= new TLine(signalPoints[0].time/1000,offset-100+3*dev,signalPoints[startingIndex].time/1000,offset-100+3*dev);
-	  offsetLine2->SetLineWidth(2);
+
+  TLine *offsetLine2= new TLine(signalPoints[0].time/1000,offset,signalPoints[startingIndex].time/1000,offset);
+      std::cout << signalPoints[0].time/1000 << " " << offset << std::endl;
 	  offsetLine2->SetLineColor(2);
+	  offsetLine2->SetLineWidth(2);
 	  offsetLine2->Draw();
-	  TLine *indexLine = new TLine(signalPoints[startingIndex].time/1000,offset-100,signalPoints[startingIndex].time/1000,calculateAmplitude(signal)*-1  );
-	  indexLine->SetLineWidth(2);
-	  indexLine->SetLineColor(3);
-	  indexLine->Draw();
-*/
+
           std::string title;
           std::stringstream ss;
           ss << number;
@@ -434,7 +432,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 			return JPetRecoSignalTools::ERRORS::badOffset;
 		}
 
-		const int numberOfPointsTakenForAproximation = 20;
+		const int numberOfPointsTakenForAproximation = 200;
 		//Checking if minimum was not in first 20 points, which means that signal was not aquisited properly
 		if( indexAtMinimumOfSignal < numberOfPointsTakenForAproximation )
 		{

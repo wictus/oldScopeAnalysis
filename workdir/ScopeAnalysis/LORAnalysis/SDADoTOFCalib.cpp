@@ -23,6 +23,7 @@ void SDADoTOFCalib::exec()
 	for(auto& point: measuredTimes)
 	{
 		double threshold = point.first;
+		
 		double time = fLOR.getSecondHit().getSignalB().getRecoSignal().getRecoTimeAtThreshold( threshold );
 
 		if( 0 != time ){
@@ -38,6 +39,7 @@ void SDADoTOFCalib::exec()
 		const_cast <JPetRecoSignal&>(fLOR.getSecondHit().getSignalA().getRecoSignal()).setRecoTimeAtThreshold( threshold , time );
 
 	}
+
 	fWriter->write(fLOR);
 
 	fEvent++;

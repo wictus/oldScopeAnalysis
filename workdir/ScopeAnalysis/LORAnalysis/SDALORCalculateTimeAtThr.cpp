@@ -19,7 +19,8 @@ void SDALORCalculateTimeAtThr::exec(){
 	const JPetLOR& inputLOR = (JPetLOR&) fReader->getData();
 
 	fCurrentLOR = inputLOR;
-
+	if( inputLOR.getFirstHit().getSignalA().getPhe() > 88 && inputLOR.getFirstHit().getSignalB().getPhe() > 33)
+	{
 		for(unsigned int j = 0; j < fThresholds.size(); j++){
                      double threshold =  fThresholds[j];
 		     double time = JPetRecoSignalTools::calculateTimeAtThreshold( fCurrentLOR.getFirstHit().getSignalA().getRecoSignal(), threshold );
@@ -39,7 +40,7 @@ void SDALORCalculateTimeAtThr::exec(){
 			if( JPetRecoSignalTools::ERRORS::badTimeAtThr != time ) 
 		     const_cast <JPetRecoSignal&>(fCurrentLOR.getSecondHit().getSignalB().getRecoSignal()).setRecoTimeAtThreshold( threshold , time );
 		}
-
+	}
 	fWriter->write( fCurrentLOR );
 
 	fEvent++;

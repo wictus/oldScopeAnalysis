@@ -45,7 +45,7 @@ void SDARecoOffsetsCalc::exec()
   // and save bad signal plot into root file
   if ( fOffset == JPetRecoSignalTools::ERRORS::badOffset ) {
 	WARNING( Form("Problem with calculating fOffset for event: %d",fEvent) );
-//	JPetRecoSignalTools::saveBadSignalIntoRootFile(signal, fBadSignals, "badOffsets.root");
+ 	JPetRecoSignalTools::saveBadSignalIntoRootFile(signal, fBadSignals, "badOffsets.root");
 	fBadSignals++;
 	fEvent++;
 	return;
@@ -56,7 +56,6 @@ void SDARecoOffsetsCalc::exec()
 
   //setting fOffset of signal
   signalWithOffset.setOffset(fOffset);
-
   //saving singal into output root file
   fWriter->write(signalWithOffset);
 
