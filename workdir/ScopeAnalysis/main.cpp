@@ -137,10 +137,11 @@ void LORtimeCalib(JPetManager& manager)
       std::map<int, double> optimalThresholds;
 //    optimalThresholds[86] = 100;
 //    optimalThresholds[87] = 100;
-     optimalThresholds[1] = 110;
-     optimalThresholds[2] = 110;
+     optimalThresholds[1] = 100;
+     optimalThresholds[2] = 100;
     std::vector<double> thr;
-    thr.push_back(110);
+    for(double t = 50; t< 501; t+=50)
+	thr.push_back(t);
 	
 	SDALORCutOnEnergy* cutOnEnergy = new SDALORCutOnEnergy("Module SDAHitCutOnEnergy: cut all hits with energy lower than 200 keV", "Reads hit energies and cuts all with energy lower than threshold 200 keV", "calculatedEnergy.lors.root", "cuttedOnEnergy.lors.root", 200);
 	SDALORCalculateTimeAtThr* calculateTimesAtThrs = new SDALORCalculateTimeAtThr("Module: SDALORCalculateTimeAtThr is calculating times at threshold before scan!","Reads file with LORs and calculates times at thr for signals", "matchedLORs.lors.root", "timeAtThrFilled.lors.root", thr);
@@ -168,9 +169,9 @@ void LORtimeCalib(JPetManager& manager)
 	SDAEstimateTOFCalib* estimateTOFAfterCalib = new SDAEstimateTOFCalib("","", "calculatedTimesAfterTOFcalib.lors.root", "out.root",110);
 
 //	manager.AddTask(cutOnEnergy);
-	manager.AddTask(calculateTimesAtThrs);
+// 	manager.AddTask(calculateTimesAtThrs);
 	manager.AddTask(calculateTimesBeforeCalib );
-//	manager.AddTask(estimateTimeOffsets);
+	manager.AddTask(estimateTimeOffsets);
 // 	manager.AddTask(doTimeCalib);
 // 	manager.AddTask(calculateTimesAfterOffsetCalib);
 //	manager.AddTask(estimateTimeOffsetsAfterCalib);
@@ -287,6 +288,28 @@ void testHowTOTCutInfluencesEDep(JPetManager& manager, const double TOTthreshold
 }
 
 
+void scanThresholds(JPetManager& manager)
+{
+    std::map<int, double> optimalThresholds;
+    std::vector<double> thr;
+    for(double t = 10; t< 50; t+=10)
+      thr.push_back(t);
+    SDALORCalculateTimeAtThr* calculateTimesAtThrs = new SDALORCalculateTimeAtThr("Module: SDALORCalculateTimeAtThr is calculating times at threshold before scan!","Reads file with LORs and calculates times at thr for signals", "matchedLORs.lors.root", "timeAtThrFilled.lors.root", thr);
+    manager.AddTask(calculateTimesAtThrs);
+    for(double t = 10; t< 50; t+=10)
+    {
+	optimalThresholds[1] = t;
+	optimalThresholds[2] = t;
+	
+	
+	SDACalculateTimes* calculateTimesBeforeCalib = new SDACalculateTimes( "", "", "timeAtThrFilled.lors.root", "calculatedTimes.lors.root", optimalThresholds);
+	SDAEstimateTimeCalib* estimateTimeOffsets = new SDAEstimateTimeCalib("","", "calculatedTimes.lors.root", "out.root", optimalThresholds);
+
+	
+	manager.AddTask(calculateTimesBeforeCalib );
+	manager.AddTask(estimateTimeOffsets);
+    }
+}
 
 int main(int argc, char* argv[])
 {
@@ -297,7 +320,8 @@ int main(int argc, char* argv[])
 //  signalAnalysis(manager,thr);
 //  hitsAnalysis(manager);
 //  LORAnalysis(manager); 
-  LORtimeCalib(manager);
+  //LORtimeCalib(manager);
+  scanThresholds(manager);
     std::map<int, double> optimalThresholds;
     optimalThresholds[71] = 110;	// for 30 cm long strips it is 110
     optimalThresholds[72] = 110;	// for 50 cm long strips it is 100

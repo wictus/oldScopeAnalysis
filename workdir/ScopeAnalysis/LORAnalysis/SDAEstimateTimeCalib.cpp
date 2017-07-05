@@ -37,7 +37,7 @@ void SDAEstimateTimeCalib::end()
   const JPetParamBank& bank = getParamBank();
 	gStyle->SetOptFit(1);
 	TCanvas* c1 = new TCanvas();
-	TH1F* deltaT = new TH1F("timeDifference", "timeDifference", 1000, -5, 5);
+	TH1F* deltaT = new TH1F("timeDifference", "timeDifference", 200, -5, 5);
 	
 	for(int i = 0; i < bank.getScintillatorsSize(); i++)
 	{
