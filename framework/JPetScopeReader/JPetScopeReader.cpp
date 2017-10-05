@@ -404,7 +404,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
   
   // Read Header
   
-  int segment_size = 16000;
+  int segment_size = 35000;
   {
     char buf[kbuflen];
     char tmp[kbuflen];
