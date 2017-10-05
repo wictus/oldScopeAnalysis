@@ -101,7 +101,7 @@ void drawAllCharges::end()
 		std::stringstream ss;
 		ss << fIDs[j];
 		std::string title = "Charge for PMT" + ss.str();
-		fChargeHistos.push_back(new TH1F( title.c_str(), title.c_str() , bins, minimum, maximum ));
+		fChargeHistos.push_back(new TH1F( title.c_str(), title.c_str() , bins, minimum, 700 ));
          	 ss.str( std::string() );
 	          ss.clear();
 	}
@@ -149,7 +149,7 @@ void drawAllCharges::end()
 
 	legend->Draw();
 
-        std::string title = fFileName + "_fChargesForAll.root";
+        std::string title = fFileName + "_fChargesForAll.png";
 
         c1->SaveAs( title.c_str() );
 
