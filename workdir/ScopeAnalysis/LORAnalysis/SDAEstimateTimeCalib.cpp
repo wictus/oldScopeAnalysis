@@ -48,7 +48,8 @@ void SDAEstimateTimeCalib::end()
 	  }
 	  
 	
-	TString title = "Time difference for" + bank.getScintillator(i).getID() ;
+	TString title = "Time difference for";
+	title+= bank.getScintillator(i).getID() ;
 	deltaT->SetTitle(title);
 	deltaT->Sumw2();
 	deltaT->Draw();
