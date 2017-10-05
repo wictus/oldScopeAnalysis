@@ -49,8 +49,7 @@ void SDACalculateTimes::exec()
         fLOR.setSecondHit( hit );
 
 	fLOR.setTimeDiff(  fLOR.getFirstHit().getTime() - fLOR.getSecondHit().getTime() );
-	if(fLOR.getFirstHit().getSignalA().getRecoSignal().getCharge() > 30 && fLOR.getFirstHit().getSignalB().getRecoSignal().getCharge() > 40)
-        	fWriter->write(fLOR);
+        fWriter->write(fLOR);
 
         fEvent++;
 }
