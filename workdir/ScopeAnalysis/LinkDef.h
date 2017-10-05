@@ -40,5 +40,5 @@
 #pragma link C++ class SDALORExctractAmplitudes+;
 #pragma link C++ class SDALORCutOnTOT+;
 #pragma link C++ class SDALORCalculateTOT+;
-
+#pragma link C++ class drawAllAmps+;
 #endif
