@@ -19,6 +19,8 @@
 	  badSignal->SetTitle(title.c_str());
 	  badSignal->Write();
 	  
+	  
+	  
 	  delete badSignal;
 	  delete c1;
 	  outFile->Close();
@@ -27,6 +29,7 @@
 	void JPetRecoSignalTools::savePNGOfBadSignal(const JPetRecoSignal& signal, int numberOfBadSignals)
 	{
 	  TCanvas* c1 = new TCanvas();
+	  c1->SetGrid();
 	  TGraph* badSignal = JPetRecoSignalTools::plotJPetRecoSignal(signal);
 	  badSignal->Draw("AP");
 	  std::string title;
@@ -206,7 +209,7 @@
 		double thresholdPlusOffset =  threshold + signal.getOffset();
 	    double slope=1;
 	    double intercept=0;
-	    for(int i= 0 ; i < findIndexAtValue(min(amplitudePoints),amplitudePoints); i++){
+	    for(int i = findIndexAtValue(min(amplitudePoints),amplitudePoints); i!=0 ;i--){
 
 			if(amplitudePoints[i+1]<thresholdPlusOffset&&amplitudePoints[i]>thresholdPlusOffset){
 				slope= (amplitudePoints[i+1]-amplitudePoints[i])/(timePoints[i+1]-timePoints[i]);
@@ -354,8 +357,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 		{
 				amplitudePoints.push_back(signalPoints[i].amplitude);
 		}
-		std::cout<<-1* (min(amplitudePoints) ) << "  " << signal.getOffset()<<std::endl;
-		std::cout << -1* (min(amplitudePoints)  - signal.getOffset()) <<std::endl;
+		
 		return -1* (min(amplitudePoints)  - signal.getOffset());
 	}
 
@@ -432,7 +434,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 			return JPetRecoSignalTools::ERRORS::badOffset;
 		}
 
-		const int numberOfPointsTakenForAproximation = 200;
+		const int numberOfPointsTakenForAproximation = 20;
 		//Checking if minimum was not in first 20 points, which means that signal was not aquisited properly
 		if( indexAtMinimumOfSignal < numberOfPointsTakenForAproximation )
 		{
