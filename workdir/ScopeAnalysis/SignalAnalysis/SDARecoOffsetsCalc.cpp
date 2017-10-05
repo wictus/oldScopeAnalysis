@@ -37,7 +37,6 @@ void SDARecoOffsetsCalc::exec()
   
   // Cast data from the entry into JPetRecoSignal
   const JPetRecoSignal& signal = (JPetRecoSignal&) fReader->getData();
-
   //fOffset calculation
   fOffset = JPetRecoSignalTools::calculateOffset(signal);
   
@@ -45,7 +44,7 @@ void SDARecoOffsetsCalc::exec()
   // and save bad signal plot into root file
   if ( fOffset == JPetRecoSignalTools::ERRORS::badOffset ) {
 	WARNING( Form("Problem with calculating fOffset for event: %d",fEvent) );
- 	JPetRecoSignalTools::saveBadSignalIntoRootFile(signal, fBadSignals, "badOffsets.root");
+//  	JPetRecoSignalTools::saveBadSignalIntoRootFile(signal, fBadSignals, "badOffsets.root");
 	fBadSignals++;
 	fEvent++;
 	return;
@@ -53,7 +52,7 @@ void SDARecoOffsetsCalc::exec()
 
   //to save Reco signal one needs to copy it to non const variable
   JPetRecoSignal signalWithOffset = signal;
-
+//  JPetRecoSignalTools::savePNGOfBadSignal(signal, fEvent);
   //setting fOffset of signal
   signalWithOffset.setOffset(fOffset);
   //saving singal into output root file
