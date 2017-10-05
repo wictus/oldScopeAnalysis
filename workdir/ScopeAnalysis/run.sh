@@ -22,4 +22,12 @@
 #./main.x -t root -f Data/5x19x300_source_8.reco.sig.root -b 1
 #./main.x -t root -f Data/5x19x300_source_9.reco.sig.root -b 1
 #./main.x -t root -f Data/5x19x300_colimator_150.reco.sig.root
-./main.x -t root -f Data/5x19x300Pos150.reco.sig.root
+#./main.x -t root -f Data/5x19x300Pos150.reco.sig.root
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_1.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_2.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_3.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_4.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_5.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_6.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_7.reco.sig.root&
+./main.x -t root -f Data/longScintillator/infiniuum_longScint_8.reco.sig.root
