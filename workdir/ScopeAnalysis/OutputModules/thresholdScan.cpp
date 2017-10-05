@@ -35,6 +35,9 @@ void thresholdScan::exec()
   // Cast data from the entry into JPetLOR
   const JPetLOR& lor = (JPetLOR&) fReader->getData();
 
+   std::cout << "Doing optimisation for: " << lor.getFirstHit().getSignalA().getPM().getID() << " and " 
+   << lor.getFirstHit().getSignalB().getPM().getID() << std::endl; 
+  
   // Extract signals
   const JPetRecoSignal& signalFirst = lor.getFirstHit().getSignalA().getRecoSignal();
   const JPetRecoSignal& signalSecond = lor.getFirstHit().getSignalB().getRecoSignal();
@@ -45,61 +48,24 @@ void thresholdScan::exec()
   const JPetHit& hitSecond = lor.getSecondHit();
 	double energyT = hitFirst.getEnergy();
 	double energyB = hitSecond.getEnergy();
-
-    if(energyCuts.size() == 2)
-    {
-	if( energyT > energyCuts[0] && energyT < energyCuts[1] )
-	{
-		energyTop.push_back(energyT);
-	}
-
-	if( energyB > energyCuts[0] && energyB < energyCuts[1] )
-	{
-		energyBottom.push_back(energyB);
-	}
-    }
-    else if(energyCuts.size() == 1)
-    {
-        if( energyT > energyCuts[0] )
-        {
-                energyTop.push_back(energyT);
-        }
-
-        if( energyB > energyCuts[0] )
-        {
-                energyBottom.push_back(energyB);
-        }
-    }
+	double chargeOne = signalFirst.getCharge();
+	double chargeTwo = signalSecond.getCharge();
+	double ampOne = signalFirst.getAmplitude();
+	double ampTwo = signalSecond.getAmplitude();
 
   // Save times from signals to file
   for( unsigned int i = 0; i < fThresholds.size(); i++)
   {
-    if(energyCuts.size() == 2)
-    {
-	if( energyT > energyCuts[0] && energyT < energyCuts[1] )
-	{
-		fDeltaTimesForThresholdsTop[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalSecond.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
-	}
-	
-	if(energyB > energyCuts[0] && energyB < energyCuts[1] )	
-	{
-		fDeltaTimesForThresholdsBottom[i].push_back( signalThird.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalFourth.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
-	}
-    }
-    else if(energyCuts.size() == 1)
-    {
-      if(energyT > energyCuts[0] ){
-                fDeltaTimesForThresholdsTop[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalSecond.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
-	}
+//     if(energyCuts.size() == 2)
+//     {
+// 	if( chargeOne > 352 && chargeTwo > 395 )
+//  	if( ampOne > 350 && ampTwo > 350 )
+//  	{
+		fDeltaTimesForThresholdsTop[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalThird.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
+//  	}
 
-      if(energyB > energyCuts[0] )
-	{
-                fDeltaTimesForThresholdsBottom[i].push_back( signalThird.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalFourth.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
-	}
-    }
-    else{
-	ERROR( Form("Bad energy cuts vector provided") );
-	}
+		fDeltaTimesForThresholdsBottom[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalSecond.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
+
  }
   fEvent++;
 }
@@ -176,7 +142,7 @@ void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data
 	  title+=name;
 
 
-          TH1F* deltaT = new TH1F( title.c_str(), title.c_str() , 200, -5000, 5000);
+          TH1F* deltaT = new TH1F( title.c_str(), title.c_str() , 400, -10000, 10000);
 
           for(unsigned int i = 0; i < data[j].size(); i++){
 		if( 0 == data[j].size())
