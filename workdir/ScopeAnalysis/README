@@ -40,11 +40,11 @@ make
 
 Running
 ------------
-To run 2 simple examples:
-./run.sh 
-Runs the analysis for whole data set.
-./runShort.sh
-Runs the analysis for smaller portion of dataset.
+Before running framework convert filenames using convertNames.sh script and in case when only 3 signals were gathered instead of 4 use makeDummyFile.sh.
+Both scripts should be executed from directory with files.
+To convert data from ASCII to framework binary:
+./main.x -t scope -f config 
+Then run analysis as in run.sh 
 
 Author
 ------------
