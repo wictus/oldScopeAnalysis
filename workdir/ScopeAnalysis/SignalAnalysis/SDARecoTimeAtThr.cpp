@@ -46,10 +46,10 @@ void SDARecoTimeAtThr::exec()
 	  }
 	  //setting time at threshold for new signal of signal
 	signalWithOffset.setRecoTimeAtThreshold(fThresholds[i], timeAtThr);
+// 	JPetRecoSignalTools::savePNGOfSignalWithThreshold(signalWithOffset, fEvent, fThresholds[i] );
   }
   //saving singal into output root file
-  if (0 != signalWithOffset.getRecoTimeAtThreshold(fThresholds[0]) )
-	fWriter->write(signalWithOffset);
+  fWriter->write(signalWithOffset);
   // increase event counter
   fEvent++;
 }

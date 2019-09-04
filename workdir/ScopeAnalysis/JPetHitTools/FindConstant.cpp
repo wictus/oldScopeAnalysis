@@ -6,7 +6,7 @@ FindConstant::FindConstant(const std::vector<double>& inputEvents, const TString
 	EXPEvents = inputEvents;
 	minBin = 0;
 	maxBin = 500; //500
-	lowerCut = 200;
+	lowerCut = 250;
 	upperCut = 380;
 	fileName = file;
 	sourcePosition = sourcePos;

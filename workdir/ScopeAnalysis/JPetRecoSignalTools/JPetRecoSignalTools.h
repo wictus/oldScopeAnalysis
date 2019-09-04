@@ -27,6 +27,8 @@ class JPetRecoSignalTools : public JPetCommonAnalysisModule
 	static double calculateAmplitude(const JPetRecoSignal& signal);
 	static double calculateArea(const JPetRecoSignal& signal);
 	static double calculateTimeAtThreshold(const JPetRecoSignal& signal, const double threshold);
+	static double calculateRisingTime(const JPetRecoSignal& signal);
+	static double calculateFallingTime(const JPetRecoSignal& signal);
 	static TGraph* plotJPetRecoSignal(const JPetRecoSignal& signal);
 	static void saveTH1FsToRootFile(std::vector<TH1F*> histoCollection, std::string fileName, std::string pdfName);
 	static double calculateAreaFromStartingIndex(const JPetRecoSignal& signal);
@@ -36,6 +38,7 @@ class JPetRecoSignalTools : public JPetCommonAnalysisModule
 	static double min(const std::vector<double>& vector);
 	static double max(const std::vector<double>& vector);
 	static double calculateTOT(const JPetRecoSignal& signal, const double threshold);
+	static void savePNGOfSignalWithThreshold(const JPetRecoSignal& signal, int number, double threshold);
 	enum ERRORS{ badOffset, badIndexAtMinimumSignal, badIndexAtValue, badCharge, badStartingIndex, badIndexAtMinimumValue, badTimeAtThr};
 		
 	private:
@@ -52,6 +55,8 @@ class JPetRecoSignalTools : public JPetCommonAnalysisModule
 	static double calculateConstantThreshold(const JPetRecoSignal& signal, const double threshold);
 	static double calculateConstantThresholdOnFallingEdge(const JPetRecoSignal& signal, const double threshold);
 	static double calculateConstantFraction(const JPetRecoSignal& signal, const double threshold);
+	static double calculateConstantFractionOnFalling(const JPetRecoSignal& signal, const double threshold);
+	
 };
 
 #endif // JPETRECOSIGNALTOOLS_H

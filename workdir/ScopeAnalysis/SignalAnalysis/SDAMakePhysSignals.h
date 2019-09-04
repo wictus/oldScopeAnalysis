@@ -12,11 +12,16 @@
 
 #include "../../../framework/JPetCommonAnalysisModule/JPetCommonAnalysisModule.h"
 #include "TCanvas.h"
+#include <cmath>
+#include <map>
+#include "TF1.h"
+#include <map>
 #ifdef MODULE_VERSION
 #undef MODULE_VERSION
 #endif
 
 #define MODULE_VERSION 1
+
 
 class SDAMakePhysSignals: public JPetCommonAnalysisModule
 {
@@ -24,7 +29,8 @@ class SDAMakePhysSignals: public JPetCommonAnalysisModule
 public:
 
   SDAMakePhysSignals(const char* name, const char* title,
-                     const char* in_file_suffix, const char* out_file_suffix
+                     const char* in_file_suffix, const char* out_file_suffix,
+		     std::map<int, TF1 > gainCurves, std::map<int, double> voltages
                      );
   virtual ~SDAMakePhysSignals();
   virtual void exec();
@@ -34,7 +40,8 @@ public:
   ClassDef(SDAMakePhysSignals, MODULE_VERSION );
 
 private:
-
+  std::map<int,TF1> fGainCurves;
+  std::map<int, double> fVoltages;
 
 };
 

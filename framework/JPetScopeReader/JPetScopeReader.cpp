@@ -198,7 +198,11 @@ void JPetScopeReader::createInputObjects(const char* inputFilename) {
 	if (n == 2) {c = 1;}
 
 	for (int j = a; j <=b; j+= c) {
-
+// 	  std::cout << " a :" << a << std::endl;
+// 	  std::cout << " b :" << b << std::endl;
+// 	  std::cout << " c :" << c << std::endl;
+// 	  std::cout << " j :" << j << std::endl;
+// 	  
 	  fConfigs.push_back(ScopeConfig());
 	  vector <ScopeConfig> :: iterator current_config = fConfigs.end() - 1;
 
@@ -319,13 +323,14 @@ void JPetScopeReader::exec() {
       string filename;
 
       int tslot_index;
-      sscanf(path(osc_file).filename().string().c_str(), "%*5s %d", &tslot_index);
+      sscanf(path(osc_file).filename().string().c_str(), "%*3s %d", &tslot_index);
       JPetRecoSignal rsig1 = generateSignal(osc_file.c_str());
       rsig1.setPM(*((*fIter).pPM1));
       rsig1.setTSlotIndex(tslot_index);
-    
+//       std::cout << tslot_index << std::endl;
+
       filename = path(*((*fIter).pIter)).filename().string();      
-      filename[2] = ((*fIter).pPrefix2)[2];
+      filename[1] = ((*fIter).pPrefix2)[1];
       osc_file = path(*((*fIter).pIter)).parent_path().string();
       osc_file+= "/";
       osc_file+= filename;
@@ -335,7 +340,7 @@ void JPetScopeReader::exec() {
       rsig2.setTSlotIndex(tslot_index);
      
       filename = path(*((*fIter).pIter)).filename().string();
-      filename[2] = ((*fIter).pPrefix3)[2];
+      filename[1] = ((*fIter).pPrefix3)[1];
       osc_file = path(*((*fIter).pIter)).parent_path().string();
       osc_file+= "/";
       osc_file+= filename;
@@ -345,7 +350,7 @@ void JPetScopeReader::exec() {
       rsig3.setTSlotIndex(tslot_index);
     
       filename = path(*((*fIter).pIter)).filename().string();
-      filename[2] = ((*fIter).pPrefix4)[2];
+      filename[1] = ((*fIter).pPrefix4)[1];
       osc_file = path(*((*fIter).pIter)).parent_path().string();
       osc_file+= "/";
       osc_file+= filename;
@@ -392,7 +397,7 @@ void JPetScopeReader::setFileName(const char* name)
 
 
 JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
-  
+ 
   // Open File
   
   FILE* input_file = fopen(filename, "r");
@@ -418,7 +423,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
     sscanf(buf, "%*s %*s %*s %d", &segment_size);
 
     if (fgets(buf, kbuflen, input_file) != 0);
-    //sscanf(buf, "%*s %*s %*s");
+    sscanf(buf, "%*s %*s %*s");
 
     if (fgets(buf, kbuflen, input_file) != 0)
     sscanf(buf, "%*s %s %s %*s", tmp, tmp + kbuflen/2);
@@ -427,7 +432,7 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
     //fTime = tmp + kbuflen/2;
 
     if (fgets(buf, kbuflen, input_file) != 0);
-    //sscanf(buf, "%*s %*s");
+    sscanf(buf, "%*s %*s");
   }
   
   // Read Data
@@ -439,11 +444,11 @@ JPetRecoSignal JPetScopeReader::generateSignal(const char* filename) {
     float value, threshold;
     int stat;
  
-    stat = fscanf(input_file, "%f,%f\n", &value, &threshold);
+    stat = fscanf(input_file, "%f %f\n", &value, &threshold);
     
 
     if (stat != 2) {
-      ERROR(Form("Non-numerical symbol in file %s at line %d", filename, i + 6));
+    //  ERROR(Form("Non-numerical symbol in file %s at line %d", filename, i + 6));
       char tmp[kbuflen];
       if (fgets(tmp, kbuflen, input_file) != 0);
     }

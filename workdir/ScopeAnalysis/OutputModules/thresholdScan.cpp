@@ -19,6 +19,7 @@ thresholdScan::~thresholdScan()
 
 void thresholdScan::begin()
 {
+  
 	for( unsigned int i = 0; i < fThresholds.size(); i++ ){
 		std::vector<double> k;
 		fDeltaTimesForThresholdsTop.push_back( k );
@@ -28,15 +29,12 @@ void thresholdScan::begin()
 
 void thresholdScan::exec()
 {
-
+  
   // Take next entry 
   fReader->getEntry(fEvent);
 
   // Cast data from the entry into JPetLOR
   const JPetLOR& lor = (JPetLOR&) fReader->getData();
-
-   std::cout << "Doing optimisation for: " << lor.getFirstHit().getSignalA().getPM().getID() << " and " 
-   << lor.getFirstHit().getSignalB().getPM().getID() << std::endl; 
   
   // Extract signals
   const JPetRecoSignal& signalFirst = lor.getFirstHit().getSignalA().getRecoSignal();
@@ -46,12 +44,17 @@ void thresholdScan::exec()
 
   const JPetHit& hitFirst = lor.getFirstHit();
   const JPetHit& hitSecond = lor.getSecondHit();
+  double pheOne = lor.getSecondHit().getSignalA().getPhe();
+  double pheTwo = lor.getSecondHit().getSignalB().getPhe();
+  
 	double energyT = hitFirst.getEnergy();
 	double energyB = hitSecond.getEnergy();
 	double chargeOne = signalFirst.getCharge();
 	double chargeTwo = signalSecond.getCharge();
 	double ampOne = signalFirst.getAmplitude();
 	double ampTwo = signalSecond.getAmplitude();
+	
+	double thresholdForReference = 30;
 
   // Save times from signals to file
   for( unsigned int i = 0; i < fThresholds.size(); i++)
@@ -59,12 +62,14 @@ void thresholdScan::exec()
 //     if(energyCuts.size() == 2)
 //     {
 // 	if( chargeOne > 352 && chargeTwo > 395 )
-//  	if( ampOne > 350 && ampTwo > 350 )
-//  	{
-		fDeltaTimesForThresholdsTop[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalThird.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
+//  	if( pheOne> 80 && pheOne < 120 && pheTwo > 80 && pheTwo < 120 )
+// 	  fDeltaTimesForThresholdsTop[i].push_back( (signalThird.getRecoTimeAtThreshold( (double)fThresholds[i] ) + signalFourth.getRecoTimeAtThreshold( (double)fThresholds[i] ))/2.0  ); 
+      
+	fDeltaTimesForThresholdsTop[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalSecond.getRecoTimeAtThreshold( thresholdForReference ) ); 
+//	fDeltaTimesForThresholdsTop[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalSecond.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
 //  	}
 
-		fDeltaTimesForThresholdsBottom[i].push_back( signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) - signalSecond.getRecoTimeAtThreshold( (double)fThresholds[i] ) ); 
+	fDeltaTimesForThresholdsBottom[i].push_back( (signalFirst.getRecoTimeAtThreshold( (double)fThresholds[i] ) + signalSecond.getRecoTimeAtThreshold( (double)fThresholds[i] ) )/2.0  ); 
 
  }
   fEvent++;
@@ -73,10 +78,10 @@ void thresholdScan::exec()
 void thresholdScan::end()
 {
 
-	plotHistosAndGraphs( fDeltaTimesForThresholdsTop, "_TOP_");
-	plotHistosAndGraphs( fDeltaTimesForThresholdsBottom, "_BOTTOM_");
-	plotEnergyCuts(energyTop, "_TOP_");
-	plotEnergyCuts(energyBottom, "_BOTTOM_");
+	plotHistosAndGraphs( fDeltaTimesForThresholdsTop, "_timeDiff_");
+// 	plotHistosAndGraphs( fDeltaTimesForThresholdsBottom, "_hitTime_");
+// 	plotEnergyCuts(energyTop, "_TOP_");
+// 	plotEnergyCuts(energyBottom, "_BOTTOM_");
 }
 
 void thresholdScan::plotEnergyCuts( std::vector<double>& data, std::string name)
@@ -101,7 +106,7 @@ void thresholdScan::plotEnergyCuts( std::vector<double>& data, std::string name)
           std::string title = buf.str();
           title+=name;
 
-          TH1F* energy = new TH1F( title.c_str(), title.c_str() , 250, 0, 500);
+          TH1F* energy = new TH1F( title.c_str(), title.c_str() , 500, 0,1000);
 
           for(unsigned int i = 0; i < data.size(); i++){
                        energy->Fill( data[i] );
@@ -115,7 +120,7 @@ void thresholdScan::plotEnergyCuts( std::vector<double>& data, std::string name)
 
 void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data, std::string name)
 {
-  std::vector<double> resolutions;
+  std::vector<double> resolutions, resErrors;
   std::vector<double> chi2;
 
   TString filePath = fHeader->getBaseFileName();
@@ -134,6 +139,8 @@ void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data
   TUnixSystem* system = new TUnixSystem();
   system->mkdir( (std::string(path)).c_str(), 1);
 
+  double mean = 0;
+  
   for(unsigned int j = 0; j < fThresholds.size(); j++){
           double thr = fThresholds[j];
           std::stringstream buf; buf << thr;
@@ -142,35 +149,75 @@ void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data
 	  title+=name;
 
 
-          TH1F* deltaT = new TH1F( title.c_str(), title.c_str() , 400, -10000, 10000);
+          TH1F* deltaT = new TH1F( title.c_str(), title.c_str() , 10000, JPetRecoSignalTools::min(data[j]), JPetRecoSignalTools::max(data[j]));
 
           for(unsigned int i = 0; i < data[j].size(); i++){
 		if( 0 == data[j].size())
 		  break;
                 if( data[j][i] != 0 )
                         deltaT->Fill( data[j][i] );
+		
+		
           }
+          
+	mean = deltaT->GetMean();
+	delete deltaT;
+  }
+  
+  for(unsigned int j = 0; j < fThresholds.size(); j++){
+          double thr = fThresholds[j];
+          std::stringstream buf; buf << thr;
+          std::string title = buf.str();
+          title+="mV";
+	  title+=name;
+
+
+          TH1F* deltaTScaled = new TH1F( title.c_str(), title.c_str() , 2000, 20000, 40000);
+
+          for(unsigned int i = 0; i < data[j].size(); i++){
+		if( 0 == data[j].size())
+		  break;
+                if( data[j][i] != 0 )
+                        deltaTScaled->Fill( data[j][i] );
+		
+		
+          }
+  
 	
         TCanvas* c1 = new TCanvas();
-	  deltaT->Sumw2();
-	double eventsNotInRange = deltaT->GetBinContent(0) + deltaT->GetBinContent(201);
-	if( eventsNotInRange != deltaT->GetEntries() )
+// 	deltaT->Sumw2();
+	double eventsNotInRange = deltaTScaled->GetBinContent(0) + deltaTScaled->GetBinContent(201);
+	if( eventsNotInRange != deltaTScaled->GetEntries() )
 	{
-		std::cout<< deltaT->GetEntries() << std::endl;
-	        deltaT->Fit("gaus","QI");
-       		resolutions.push_back( (double)deltaT->GetFunction("gaus")->GetParameter(2) );
-		chi2.push_back( ( (double)deltaT->GetFunction("gaus")->GetChisquare() ) / ( (double)deltaT->GetFunction("gaus")->GetNDF() ) );
+		
+		double center = deltaTScaled->GetBinCenter(deltaTScaled->GetMaximumBin());
+		TF1* onlyGaus = new TF1("onlyGaus", "gaus",  center*0.8, center*1.2);
+		deltaTScaled->Fit("onlyGaus","QIR");
+	
+		TF1* gausAndPoly = new TF1("gausAndPoly", "gaus(0)+pol2(3)", center*0.8, center*1.2);
+		gausAndPoly->SetParameter(0, onlyGaus->GetParameter(0) );
+		gausAndPoly->SetParameter(1, onlyGaus->GetParameter(1));
+		gausAndPoly->SetParameter(2, onlyGaus->GetParameter(2));
+// 		deltaTScaled->Fit("gausAndPoly","QIR");
+
+//        		resolutions.push_back( (double)deltaTScaled->GetFunction("gausAndPoly")->GetParameter(2) );
+// 		chi2.push_back( ( (double)deltaTScaled->GetFunction("gausAndPoly")->GetChisquare() ) / ( (double)deltaTScaled->GetFunction("gausAndPoly")->GetNDF() ) );
+		resolutions.push_back( (double)deltaTScaled->GetFunction("onlyGaus")->GetParameter(2) );
+		resErrors.push_back((double)deltaTScaled->GetFunction("onlyGaus")->GetParError(2));
+		
+		chi2.push_back( ( (double)deltaTScaled->GetFunction("onlyGaus")->GetChisquare() ) / ( (double)deltaTScaled->GetFunction("onlyGaus")->GetNDF() ) );
 	}
 	else
 	{
 		resolutions.push_back(0);
 		chi2.push_back(0);
 	}
-        deltaT->Draw();
+        deltaTScaled->Draw();
 	title+=buf.str();
         c1->SaveAs( ((std::string)path+title+".png").c_str() );
-
-        delete deltaT;
+        c1->SaveAs( ((std::string)path+title+".root").c_str() );
+	
+        delete deltaTScaled;
   }
 
   std::ofstream outFile;
@@ -178,7 +225,7 @@ void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data
   outFile.open( ((std::string)path+name + "resolutions"+buf.str()+".txt").c_str() );
 
   for(unsigned int i = 0; i < resolutions.size(); i++){
-        outFile << fThresholds[i] << "\t"<< resolutions[i] << "\t" << chi2[i] <<  std::endl;
+        outFile << fThresholds[i] << "\t"<< resolutions[i] << "\t" << resErrors[i] <<  std::endl;
   }
 
   outFile.close();
@@ -189,7 +236,10 @@ void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data
   resGraph->SetMarkerStyle(21);
   resGraph->SetMarkerSize(1.4);
   resGraph->GetXaxis()->SetTitle("Threshold [mV]");
-  resGraph->GetYaxis()->SetTitle("Time difference resolution [ps]");
+  if( !name.compare("_TOP_") )
+    resGraph->GetYaxis()->SetTitle("Time difference resolution [ps]");
+  else if( !name.compare("_BOTTOM_") )
+    resGraph->GetYaxis()->SetTitle("Hit time resolution [ps]");
   resGraph->GetXaxis()->SetLabelFont(42);
   resGraph->GetYaxis()->SetLabelFont(42);
   resGraph->GetXaxis()->SetLabelSize(0.06);
@@ -205,7 +255,7 @@ void thresholdScan::plotHistosAndGraphs( std::vector<std::vector<double> >& data
   c1->SetTopMargin(0.02572016);
   c1->SetBottomMargin(0.1738683);
 
- 
+  resGraph->GetYaxis()->SetRangeUser(0, 600);
   resGraph->Draw("AP");
   c1->SaveAs( ((std::string)path+name+buf.str()+"graph.root").c_str() );
   resGraph->Draw("AP");

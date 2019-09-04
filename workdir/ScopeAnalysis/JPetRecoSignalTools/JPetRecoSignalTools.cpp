@@ -45,6 +45,35 @@
 	  delete badSignal;
 	  delete c1;
 	}
+	
+	void JPetRecoSignalTools::savePNGOfSignalWithThreshold(const JPetRecoSignal& signal, int number, double threshold)
+	{
+	  TCanvas* c1 = new TCanvas();
+	  c1->SetGrid();
+	  TGraph* graph = JPetRecoSignalTools::plotJPetRecoSignal(signal);
+	  graph->Draw("AP");
+	  double baseline = signal.getOffset();
+	  TLine *line = new TLine( -50, -1*threshold+baseline, signal.getRecoTimeAtThreshold( threshold )/1000.0, -1*threshold+baseline);
+// 	  TLine *line = new TLine( -50, -100, 30, -100);
+	  
+		  line->SetLineWidth(4);
+		  line->SetLineColor(3);
+		  line->Draw();
+		  
+	  std::string title;
+	  std::stringstream ss;
+	  ss << number;
+	  std::string str = ss.str();
+	  ss.str( std::string() );
+	  ss.clear();
+	  ss << signal.getPM().getID();
+	  std::string PMT = ss.str();
+	  title = "thresholdPlot_PMT" + PMT+"_"+str+ ".png";
+	  c1->SaveAs(title.c_str());
+	  delete graph;
+	  delete c1;
+	}
+
 
 	void JPetRecoSignalTools::savePNGwithMarkedOffsetsAndStartingPoints(const JPetRecoSignal& signal, int number)
 	{
@@ -150,6 +179,42 @@
 		return JPetRecoSignalTools::ERRORS::badTimeAtThr;		
 	}
 	
+	double JPetRecoSignalTools::calculateConstantFraction(const JPetRecoSignal& signal, const double threshold)
+	{
+		double amplitude = signal.getAmplitude();
+		double fractionValue = amplitude*threshold*-1;
+		
+		return calculateConstantThreshold(signal, fractionValue);
+	}
+
+	double JPetRecoSignalTools::calculateConstantFractionOnFalling(const JPetRecoSignal& signal, const double threshold)
+	{
+		double amplitude = signal.getAmplitude();
+		double fractionValue = amplitude*threshold*-1;
+		
+		return calculateConstantThresholdOnFallingEdge(signal, fractionValue);
+	}
+
+	double JPetRecoSignalTools::calculateRisingTime(const JPetRecoSignal& signal)
+	{
+		double timeAt10Rising = 0;
+		double timeAt90Rising = 0;
+	
+		timeAt10Rising = calculateConstantFraction(signal, 0.2);
+		timeAt90Rising = calculateConstantFraction(signal, 0.8);
+		
+		return timeAt90Rising - timeAt10Rising;
+	}
+
+	double JPetRecoSignalTools::calculateFallingTime(const JPetRecoSignal& signal)
+	{
+		double timeAt10Falling =0, timeAt90Falling =0;
+		timeAt10Falling = calculateConstantFractionOnFalling(signal, 0.2);
+		timeAt90Falling = calculateConstantFractionOnFalling(signal, 0.8);
+
+		return timeAt10Falling - timeAt90Falling;
+	}
+
 	double JPetRecoSignalTools::calculateTOT(const JPetRecoSignal& signal, const double threshold)
 	{
 	  if(signal.getOffset() == JPetRecoSignalTools::ERRORS::badOffset)
@@ -209,25 +274,18 @@
 		double thresholdPlusOffset =  threshold + signal.getOffset();
 	    double slope=1;
 	    double intercept=0;
-	    for(int i = findIndexAtValue(min(amplitudePoints),amplitudePoints); i!=0 ;i--){
-
-			if(amplitudePoints[i+1]<thresholdPlusOffset&&amplitudePoints[i]>thresholdPlusOffset){
-				slope= (amplitudePoints[i+1]-amplitudePoints[i])/(timePoints[i+1]-timePoints[i]);
-				intercept=amplitudePoints[i]-(amplitudePoints[i+1]-amplitudePoints[i])/(timePoints[i+1]-timePoints[i])*timePoints[i];
-		    timeAtThr=(thresholdPlusOffset-intercept)/slope;
-		    break;
+	    double minimumIndex = findIndexAtValue(min(amplitudePoints),amplitudePoints);
+	    for(int i = 0; i < minimumIndex; i++){
+			if( absolute (amplitudePoints[i] ) < absolute ( thresholdPlusOffset )&& absolute (amplitudePoints[i+1])> absolute (thresholdPlusOffset )){
+				slope = (amplitudePoints[i+1]-amplitudePoints[i])/(timePoints[i+1]-timePoints[i]);
+				intercept=amplitudePoints[i]-slope*timePoints[i];
+				timeAtThr=(thresholdPlusOffset-intercept)/slope;
+				break;
 			}
 	    }
 	    return timeAtThr;
 	}
 
-	double JPetRecoSignalTools::calculateConstantFraction(const JPetRecoSignal& signal, const double threshold)
-	{
-		double amplitude = signal.getAmplitude();
-		double fractionValue = amplitude*threshold*-1;
-		
-		return calculateConstantThreshold(signal, fractionValue);
-	}
 
 double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal& signal)
 {
@@ -316,7 +374,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 				  }    
 	     
 				  else{
-					  if(amplitudePoints[i]<amplitudePoints[i+1]){      // different slopes
+					  if(amplitudePoints[i]<amplitudePoints[i+1]){      //different slopes
 						  area = area + amplitudePoints[i]*(timePoints[i+1]-timePoints[i]) + 0.5*(amplitudePoints[i+1]-amplitudePoints[i])*(timePoints[i+1]-timePoints[i]);
 					  }    
 					  else{
@@ -471,7 +529,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 	{
 		if(vector.size() == 1)
 		{
-			std::cout<<"Cannot calculate standard deviation for this vector!\n";
+// 			std::cout<<"Cannot calculate standard deviation for this vector!\n";
 			return -1;
 		}
 		
@@ -491,7 +549,7 @@ double JPetRecoSignalTools::calculateAreaFromStartingIndex(const JPetRecoSignal&
 		
 		if( (unsigned int) index > vector.size())
 		{
-			std::cout<<"Given index is bigger than vector size\n";
+// 			std::cout<<"Given index is bigger than vector size\n";
 			return copy;
 		}
 		
@@ -536,7 +594,7 @@ double JPetRecoSignalTools::min(const std::vector<double>& vector)
 {
 	if(vector.size() == 0)
 	{
-		std::cout<<"Vector size is 0, not possible to look for minimum\n";
+// 		std::cout<<"Vector size is 0, not possible to look for minimum\n";
 		return JPetRecoSignalTools::ERRORS::badIndexAtValue;
 	}
 	double min = vector[0] ;
@@ -554,7 +612,7 @@ double JPetRecoSignalTools::max(const std::vector<double>& vector)
 {
         if(vector.size() == 0)
         {
-                std::cout<<"Vector size is 0, not possible to look for maximum\n";
+//                 std::cout<<"Vector size is 0, not possible to look for maximum\n";
 		return JPetRecoSignalTools::ERRORS::badIndexAtValue;
         }
         double max = vector[0] ;

@@ -36,6 +36,7 @@ void SDAHitFindEnergyConstant::exec()
 				const JPetHit& hit = (JPetHit&) fReader->getData();
 				if(hit.getScintillator().getID() == fScintillatorID )
 				{
+				  std::cout << (hit.getSignalA().getPhe() + hit.getSignalB().getPhe() ) /2.0 << std::endl;
 					fEXPEvents.push_back( (hit.getSignalA().getPhe() + hit.getSignalB().getPhe() ) /2.0 );
 				}
 			}

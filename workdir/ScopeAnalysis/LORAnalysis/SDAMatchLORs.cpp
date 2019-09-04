@@ -31,7 +31,7 @@ void SDAMatchLORs::begin()
 
     fReader->getEntry(fEvent);
     const JPetHit& hit = (JPetHit&) fReader->getData();
-   fTSlot = hit.getSignalA().getTSlotIndex();
+    fTSlot = hit.getSignalA().getTSlotIndex();
 
 }
 
@@ -56,35 +56,52 @@ void SDAMatchLORs::exec()
         return;
         }
 
+        
   //make sure that last signal is not from nextfTSlotIndex
   if(fArray[fArray.size() -1].getSignalA().getTSlotIndex() !=fTSlot){
         fArray.pop_back();
         fEvent--;
         }
 
+  
   //increasefTSlot;
   fTSlot++; 
 
-
-  for(unsigned int firstHitIndex = 0; firstHitIndex < fArray.size()-1 && 0 != fArray.size(); firstHitIndex++)
+//// HANDLE 4 signal stuff  
+//   for(unsigned int firstHitIndex = 0; firstHitIndex < fArray.size()-1 && 0 != fArray.size(); firstHitIndex++)
+//   {	
+// 	std::cout << firstHitIndex << std::endl;
+// 	for(unsigned int secondHitIndex = firstHitIndex+1; secondHitIndex < fArray.size(); secondHitIndex++)
+// 	{
+// 		if(fArray[firstHitIndex].getScintillator().getID() != fArray[secondHitIndex].getScintillator().getID() )
+// 		{
+// 			JPetLOR lor( 0,0, fArray[firstHitIndex], fArray[secondHitIndex]);
+// 			
+// // 			std::cout << "PM1: " <<lor.getFirstHit().getSignalA().getPM().getID() << std::endl;
+// // 			std::cout << "PM2: " <<lor.getFirstHit().getSignalB().getPM().getID() << std::endl;
+// // 			std::cout << "PM3: " <<lor.getSecondHit().getSignalA().getPM().getID() << std::endl;
+// // 			std::cout << "PM4: " <<lor.getSecondHit().getSignalB().getPM().getID() << std::endl;
+// // 			
+// 			fWriter->write(lor);
+// 			fMatched++;
+// 		}
+// 	}
+//   }
+// HANDLE 2 signal stuff
+  if( 0 != fArray.size())
   {	
-	for(unsigned int secondHitIndex = firstHitIndex+1; secondHitIndex < fArray.size(); secondHitIndex++)
-	{
-		if(fArray[firstHitIndex].getScintillator().getID() != fArray[secondHitIndex].getScintillator().getID() )
-		{
-			JPetLOR lor( 0,0, fArray[firstHitIndex], fArray[secondHitIndex]);
-			/*
-			std::cout << "PM1: " <<lor.getFirstHit().getSignalA().getPM().getID() << std::endl;
-			std::cout << "PM2: " <<lor.getFirstHit().getSignalB().getPM().getID() << std::endl;
-			std::cout << "PM3: " <<lor.getSecondHit().getSignalA().getPM().getID() << std::endl;
-			std::cout << "PM4: " <<lor.getSecondHit().getSignalB().getPM().getID() << std::endl;
-			*/
-			fWriter->write(lor);
-			fMatched++;
-		}
-	}
+	JPetHit emptyHit;
+	JPetLOR lor( 0,0, fArray[0], emptyHit);
+	
+// 	std::cout << "PM1: " <<lor.getFirstHit().getSignalA().getPM().getID() << std::endl;
+// 	std::cout << "PM2: " <<lor.getFirstHit().getSignalB().getPM().getID() << std::endl;
+	
+	fWriter->write(lor);
+	fMatched++;
+	
   }
   fArray.clear();
+  
 }
 
 

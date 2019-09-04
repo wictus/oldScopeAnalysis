@@ -49,10 +49,11 @@ void SDAMatchHits::exec()
 
   	//get signal from entry
 	const JPetPhysSignal& signal = (JPetPhysSignal&) fReader->getData();
-
+// 	std::cout << signal.getPM().getID() << std::endl;
 	//put signal into fArray
 	fArray.push_back(signal);
 	currentTSlot = signal.getTSlotIndex();
+	
   }
 
   //stop when all events were processed
@@ -119,6 +120,7 @@ void SDAMatchHits::exec()
 				hit.setScintillator(fSegragatedSignals[ stripeIndex ][ signalIndex ].getPM().getScin() );	
 				
 				fWriter->write(hit);	
+				fMatched++;
 				break;
 			}
               
@@ -144,7 +146,6 @@ void SDAMatchHits::exec()
 
 void SDAMatchHits::end()
 {
-	fMatched = fEventNb/2.0 - fNotMatched;
   	INFO(
 	Form("Matching complete \nAmount of fMatched hits: %d " , fMatched) );
 	double goodPercent = fNotMatched* 100.0 /fMatched ;

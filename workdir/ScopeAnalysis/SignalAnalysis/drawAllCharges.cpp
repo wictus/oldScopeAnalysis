@@ -94,14 +94,15 @@ void drawAllCharges::end()
 
 	if(bins<0)
 		bins*=-1;
-
+ 
+	bins = 400;
 	//making vector of histos
 	for( unsigned int j = 0; j < fNumberOfPMTs; j++ )
 	{
 		std::stringstream ss;
 		ss << fIDs[j];
 		std::string title = "Charge for PMT" + ss.str();
-		fChargeHistos.push_back(new TH1F( title.c_str(), title.c_str() , bins, minimum, 700 ));
+		fChargeHistos.push_back(new TH1F( title.c_str(), title.c_str() , bins, minimum, 200 ));
          	 ss.str( std::string() );
 	          ss.clear();
 	}
@@ -140,16 +141,19 @@ void drawAllCharges::end()
 	{
 		if(i == tallest)
 			continue;
-		fChargeHistos[i]->SetLineWidth(4);
-		fChargeHistos[i]->SetLineColor(i+1);
-		fChargeHistos[i]->Draw("same");
-		legend->AddEntry(fChargeHistos[i], fChargeHistos[i]->GetTitle(),"l");
+		if(fChargeHistos[i]->GetEntries() != 0 )
+		{
+		  fChargeHistos[i]->SetLineWidth(4);
+		  fChargeHistos[i]->SetLineColor(i+1);
+		  fChargeHistos[i]->Draw("same");
+		  legend->AddEntry(fChargeHistos[i], fChargeHistos[i]->GetTitle(),"l");
+		}
 		
 	}	
 
 	legend->Draw();
 
-        std::string title = fFileName + "_fChargesForAll.png";
+        std::string title = fFileName + "_fChargesForAll.root";
 
         c1->SaveAs( title.c_str() );
 

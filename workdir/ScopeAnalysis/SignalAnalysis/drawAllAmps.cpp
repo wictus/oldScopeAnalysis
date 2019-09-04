@@ -91,7 +91,7 @@ void drawAllAmps::end()
 
 	int bins = maximum - minimum;
 	bins /= 20;
-	bins = 50;
+	bins = 75;
 	if(bins<0)
 		bins*=-1;
 
@@ -101,7 +101,7 @@ void drawAllAmps::end()
 		std::stringstream ss;
 		ss << fIDs[j];
 		std::string title = "Amp for PMT" + ss.str();
-		fAmpHistos.push_back(new TH1F( title.c_str(), title.c_str() , bins, 0, 1000 ));
+		fAmpHistos.push_back(new TH1F( title.c_str(), title.c_str() , bins, 0, 500 ));
          	 ss.str( std::string() );
 	          ss.clear();
 	}
@@ -140,18 +140,22 @@ void drawAllAmps::end()
 	{
 		if(i == tallest)
 			continue;
-		fAmpHistos[i]->SetLineWidth(4);
-		fAmpHistos[i]->SetLineColor(i+1);
-		fAmpHistos[i]->Draw("same");
-		legend->AddEntry(fAmpHistos[i], fAmpHistos[i]->GetTitle(),"l");
+		if(fAmpHistos[i]->GetEntries() != 0 )
+		{
+		  fAmpHistos[i]->SetLineWidth(4);
+		  fAmpHistos[i]->SetLineColor(i+1);
+		  fAmpHistos[i]->Draw("same");
+		  legend->AddEntry(fAmpHistos[i], fAmpHistos[i]->GetTitle(),"l");
+		}
 		
 	}	
 
 	legend->Draw();
 
-        std::string title = fFileName + "_fAmpHistosForAll.png";
+        std::string title = fFileName + "_fAmpHistosForAll";
 
-        c1->SaveAs( title.c_str() );
+        c1->SaveAs( (title+".png").c_str() );
+        c1->SaveAs( (title+".root").c_str() );
 
 }
 

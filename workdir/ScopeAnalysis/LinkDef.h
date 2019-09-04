@@ -41,4 +41,10 @@
 #pragma link C++ class SDALORCutOnTOT+;
 #pragma link C++ class SDALORCalculateTOT+;
 #pragma link C++ class drawAllAmps+;
+#pragma link C++ class SDARecoRisingTimeCalc+;
+#pragma link C++ class SDARecoFallingTimeCalc+;
+#pragma link C++ class SDARecoEnergyResolutionFit+;
+#pragma link C++ class SDARecoAmplitudeCut+;
+#pragma link C++ class SDARecoCutAroundPhotopeak+;
+#pragma link C++ class makeMeanSignal++;
 #endif
