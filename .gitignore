@@ -14,7 +14,6 @@
 *.exe
 *.xml
 *.png
-*.json
 *.txt
 *.swp
 *.kdev*
