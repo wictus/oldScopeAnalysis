@@ -1,0 +1,52 @@
+Aim
+---
+This example show a full dummy analysis of data from J-PET two strip prototype. 
+It works with signals from SDA, but in principle should work with any dataset which has JPetRecoSignals
+
+ * data from 2-strip setup with source at position [0,0]
+
+Expected output
+---------------
+
+JPet.log file appears with the log of the processing and ROOT files with the following extensions are produced:
+
+bareSource.reco.sig.offsets.analysisExample.5.root 
+bareSource.reco.sig.timeAtThr.analysisExample.5.root
+bareSource.reco.sig.phys.analysisExample.5.root
+bareSource.reco.sig.hit.analysisExample.5.root
+bareSource.reco.sig.position.analysisExample.5.root
+bareSource.reco.sig.lor.analysisExample.5.root
+bareSource.reco.sig.tof.analysisExample.5.root
+points.txt
+
+Description
+--------------
+The analysis is split into different modules and consists of:
+* offset calculation
+* time at threshold calculation
+* conversion of RecoSignals into PhysSignals
+* Hit matching of PhysSignals
+* position of interaction, time of interaction and time difference calculation of Hits
+* LOR matching of Hits
+* TOF calculation of LOR, saving results for reconstruction in points.txt file
+
+Additional info
+--------------
+In source code.
+
+Compiling 
+------------
+make
+
+Running
+------------
+Before running framework convert filenames using convertNames.sh script and in case when only 3 signals were gathered instead of 4 use makeDummyFile.sh.
+Both scripts should be executed from directory with files.
+To convert data from ASCII to framework binary:
+./main.x -t scope -f config 
+Then run analysis as in run.sh 
+
+Author
+------------
+Szymon Niedźwiecki
+Please report any bugs and suggestions of corrections to: <szymon.niedzwiecki@googlemail.com>

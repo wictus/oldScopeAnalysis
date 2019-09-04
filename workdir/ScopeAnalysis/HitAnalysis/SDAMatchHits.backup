@@ -1,0 +1,103 @@
+#include "./SDAMatchHits.h"
+#include "JPetRecoSignalTools/JPetRecoSignalTools.h"
+#include "sstream"
+#include <stdlib.h>
+#include "fstream"
+
+ClassImp(SDAMatchHits);
+
+SDAMatchHits::SDAMatchHits(const char* name, const char* title,
+                           const char* in_file_suffix, const char* out_file_suffix) :
+  JPetCommonAnalysisModule(name, title, in_file_suffix, out_file_suffix)
+{
+  setVersion(MODULE_VERSION);
+}
+
+static int TSlot = 0;
+std::vector<JPetPhysSignal> array;
+
+SDAMatchHits::~SDAMatchHits()
+{
+}
+
+void SDAMatchHits::begin()
+{
+	INFO(
+      Form("Amount of signals in file: %d", fEventNb ) );
+      notMatched = 0;
+}
+
+void SDAMatchHits::exec()
+{
+
+  fReader->getEntry(fEvent);
+  const JPetPhysSignal& signal = (JPetPhysSignal&) fReader->getData();
+  array.push_back(signal);
+//	std::cout<<"Tslot: " << signal.getTSlotIndex() << " event " << fEvent <<std::endl;
+
+  if (signal.getTSlotIndex() != TSlot ) {
+    array.pop_back();
+//	 std::cout<<"Tslot done: " << TSlot <<std::endl;
+    if ( array.size() < 4 ) {
+      std::cout << "strange array size: " << array.size() << " for TSlot " << TSlot << std::endl;
+    }
+
+    TSlot++;
+
+
+    int leftTopIndex = -1;
+    int rightTopIndex = -1;
+    int leftBottomIndex = -1;
+    int rightBottomIndex = -1;
+
+    if (array.size() > 4) {
+      std::cout << "Error array bigger than 4\n";
+      return;
+    }
+
+//	 std::cout<<"Size of array: " << array.size() <<std::endl;
+
+    for (unsigned int i = 0; i < array.size(); i++ ) {
+      if ( array[i].getPM().getID() == 9491 ) {
+        leftTopIndex = i;
+      }
+      if ( array[i].getPM().getID() == 9487 ) {
+        rightTopIndex = i;
+      }
+      if ( array[i].getPM().getID() == 9503 ) {
+        leftBottomIndex = i;
+      }
+      if ( array[i].getPM().getID() == 9475 ) {
+        rightBottomIndex = i;
+      }
+    }
+
+//	std::cout<< leftTopIndex << " " << rightTopIndex << " " << leftBottomIndex << " " << rightBottomIndex << std::endl;
+
+    JPetHit hit1, hit2;
+
+    if ( (leftTopIndex != -1) and (rightTopIndex != -1) ) {
+      hit1.setSignalA(array[leftTopIndex]);
+      hit1.setSignalB(array[rightTopIndex]);
+      hit1.setScinID( array[leftTopIndex].getRecoSignal().getPM().getScin().getID() );
+      fWriter->write(hit1);
+    }
+
+    if ( (leftBottomIndex != -1 and rightBottomIndex != -1) ) {
+      hit2.setSignalA(array[leftBottomIndex]);
+      hit2.setSignalB(array[rightBottomIndex]);
+      hit2.setScinID( array[ leftBottomIndex ].getRecoSignal().getPM().getScin().getID() );
+      fWriter->write(hit2);
+    }
+
+    array.clear();
+    array.push_back(signal);
+  }
+  fEvent++;
+}
+
+
+void SDAMatchHits::end()
+{
+  std::cout << "Last TSlot: " << TSlot << " last fEvent " << fEvent << std::endl;
+}
